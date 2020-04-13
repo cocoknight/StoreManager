@@ -84,12 +84,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseManager.cs" />
+    <Compile Include="ConstantSet.cs" />
+    <Compile Include="CReportManager.cs" />
+    <Compile Include="CResultLoader.cs" />
+    <Compile Include="CUtility.cs" />
+    <Compile Include="EnumSet.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="KeyList.cs" />
+    <Compile Include="MStoreManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
