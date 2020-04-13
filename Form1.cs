@@ -129,6 +129,7 @@ namespace StoreManager
 
                 foreach (var currItem in currList)
                 {
+                    Dictionary<string, object> item_info = new Dictionary<string, object>();  //해당 아이템의 필요한 정보를 뽑아서 사전 형태로 저장
 
                     System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("Name")));
                     //this.getTarget_Attributes(currItem);
@@ -139,13 +140,28 @@ namespace StoreManager
                     Thread.Sleep(3000);
 
                     //var elements = _deskTopSessoin.FindElementsByXPath("//Button[@Name=\"NavigationControl\"]/child::*");
-                    //var elements = _deskTopSessoin.FindElementsByXPath("//Group[@AutomationId==\"pdp\"]/child::*");
-                    var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//*");
+                    //var elements = _deskTopSessoin.FindElementsByXPath("//Group[@AutomationId=\"pdp\"]//child::*");       //This is OK 
+                    //var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//*");      //This is OK
+                    //var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//child::*"); //This is OK
+
+                    //step1 : get App Title
+                    var element = _deskTopSessoin.FindElementByAccessibilityId("DynamicHeading_productTitle");
+                    string itemName = element.GetAttribute("Name");
+                    item_info.Add(_keyList.k_store_app_name, itemName.ToString());
+
+                    //var elements = element.FindElementsByXPath("/following-sibling::*");
+                    var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*");
                     foreach (var currChild in elements)
                     {
                         System.Diagnostics.Debug.WriteLine(string.Format("child name:{0}", currChild.GetAttribute("Name")));
                     }
-                        break;
+
+
+
+
+                    //TO DO : Add Dictionary to List
+
+                    break;
 
                 }
 
