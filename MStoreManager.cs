@@ -178,8 +178,11 @@ namespace StoreManager
         void do_free_game_ranking()
         {
 
-            this.compose_freegame_ranking();
-            this.operateTestScenario(_store_test_list);
+            //TOAN : 04/14/2020. Below is not generalization code
+
+            //TOAN : 04/14/2020. Below is generalization code
+            //this.compose_freegame_ranking();
+            //this.operateTestScenario(_store_test_list);
         }
 
 

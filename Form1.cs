@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -26,6 +27,8 @@ namespace StoreManager
         CUtility _myUtility;
         public KeyList _keyList;
 
+
+        public List<Dictionary<string, object>> _store_list;
 
         MStoreManager _storeManager;
         public Form1()
@@ -68,6 +71,16 @@ namespace StoreManager
             System.Diagnostics.Debug.WriteLine(string.Format("Parsing Elements"));
             target.Click();
         }
+
+        /* Test시나리오
+        StoreManager First Draft
+        무료 : MS Store 홈 ->무료 인기 앱
+        유료 : MS Store 홈 ->뮤료 인기 앱 -> 차트 Top Paid선택(필터에서 선택)
+        */
+
+
+
+
         private void button2_Click(object sender, EventArgs e)
         {
 
@@ -127,14 +140,22 @@ namespace StoreManager
                 var currList = gameElement.ToList();
                 System.Diagnostics.Debug.WriteLine(string.Format("[Setting MenuList]List Count:{0}", currList.Count));
 
+                //compose dictionary info
+                string categoryName = this.cboCategory.SelectedItem.ToString();
+                string subclassName = this.cboSubclass.SelectedItem.ToString();
+
                 foreach (var currItem in currList)
                 {
                     Dictionary<string, object> item_info = new Dictionary<string, object>();  //해당 아이템의 필요한 정보를 뽑아서 사전 형태로 저장
 
+                    item_info.Add(_keyList.k_store_category, categoryName);
+                    item_info.Add(_keyList.k_store_subclass, subclassName);
+                    //Add Category and Subclass
+
                     System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("Name")));
                     //this.getTarget_Attributes(currItem);
 
-                    currItem.Click();
+                    currItem.Click(); //해당 Item의 상세 정보 보기로 진입 한다.
 
                     //get 1 depth목록
                     Thread.Sleep(3000);
@@ -147,23 +168,116 @@ namespace StoreManager
                     //step1 : get App Title
                     var element = _deskTopSessoin.FindElementByAccessibilityId("DynamicHeading_productTitle");
                     string itemName = element.GetAttribute("Name");
+
                     item_info.Add(_keyList.k_store_app_name, itemName.ToString());
 
                     //var elements = element.FindElementsByXPath("/following-sibling::*");
-                    var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*");
-                    foreach (var currChild in elements)
+                    //var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*"); //This is OK
+
+                    //click한 이후에 형제 element들을 가지고 온ㄷ.
+                    var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]//following-sibling::*"); //This is OK
+
+                    foreach (var currElement in elements)
                     {
-                        System.Diagnostics.Debug.WriteLine(string.Format("child name:{0}", currChild.GetAttribute("Name")));
-                    }
+                        // System.Diagnostics.Debug.WriteLine(string.Format("child name:{0}", currElement.GetAttribute("Name"))); //print all sibling member
+                        //Step1 : Get Publisher
+                        string currString = currElement.GetAttribute("Name");
+                        if (!String.IsNullOrEmpty(currString))
+                        { 
+
+                                    if (currString.Equals("게시자"))
+                                    {
+                                        var childElement = currElement.FindElementByXPath("//child::Button"); //Get first button element
+                                        string publisher_name = childElement.GetAttribute("Name");
+                                        System.Diagnostics.Debug.WriteLine(string.Format("publisher name:{0}", childElement.GetAttribute("Name"))); //print all sibling member
+                                        item_info.Add(_keyList.k_sotre_app_manufacture, publisher_name);
+
+                                    }
+                                //Step2 : Get Category
+                                   if (currString.Equals("범주"))
+                                   {
+
+                                    var childElements = currElement.FindElementsByXPath("//child::Button"); //Get All button elements
+                                    string category_string = "";
+                                    string suffix_string = "의 자세한 결과 보기";
+                                    int suffix_length = suffix_string.Length;
+
+                                    //Store의 범주는 눈에 보여지는 string과 ui element가 가지고 있는 형태가 틀리다.
+                                    //예를 들어 Roblox의 경우 엑션 및 어드벤처,가족 및 어린이와 같이 표시되나.
+                                    //내부적으로는
+                                    //"액션 및 어드벤처의 자세한 결과 보기", "," ,"가족 및 어린이의 자세한 결과 보기"로 구성
+                                    //즉, 접미사 형태로 "자세한 결과 보기"가 포함되어 있다. 따라서 이것에 대해 substring작업을 통해 별도 처리 한다.
+                                    //위 작업은 suffix length와 substring을 통해 이루어 진다.
 
 
+                                    foreach (var currButton in childElements)
+                                    {
+                                        //category_string = String.Right()
+                                        if (!String.IsNullOrEmpty(category_string))
+                                        {
+                                            string element_name = currButton.GetAttribute("Name");
+                                            category_string = category_string + "," + element_name.Substring(0, element_name.Length - suffix_length);
+                                        }
+                                        else
+                                        {
+                                            string element_name = currButton.GetAttribute("Name");
+                                            category_string = element_name.Substring(0, element_name.Length - suffix_length);
+                                        }
 
+
+                                    }
+
+                                    item_info.Add(_keyList.k_store_app_category, category_string); //앱이 상세 범부("액션 및 어드벤쳐", "가족 및 어린이"와 같은 표현
+
+                                    System.Diagnostics.Debug.WriteLine(string.Format("item category name:{0}", category_string));
+                                } //end of 범주
+
+                                //Step3 : 평점 및 Review갯수 
+                                if (currString.Contains("평점"))
+                                {
+                                    //This is abnormal case for element hierarchy. But, This is based on MS Naming Code
+                                    var result1 = Regex.Split(currString, ":"); // ":"을 기준으로 2개의 파트로 구분 한다.
+                                    //첫번째 파트에서 숫자만 찾아서, 천단위 구분기호를 넣어준다.(store상에 표기되는 그대로 표시하기 위함)
+                                    string number_of_vote = Regex.Replace(result1[0], @"\D", "");
+                                    int vote_number = int.Parse(number_of_vote);
+                                    string c_number_of_vote = String.Format("{0:#,###}", vote_number);
+                                    System.Diagnostics.Debug.WriteLine(string.Format("평가 갯수:{0}", c_number_of_vote));
+
+                                    item_info.Add(_keyList.k_store_app_review, c_number_of_vote);
+
+                                    //두번째 파트에서 실수를 찾는다. (4.0, 2.X와 같이 평점 표현)
+                                    Regex r = new Regex(@"[0-9]+\.[0-9]+");
+                                    Match m = r.Match(result1[1]);
+                                    System.Diagnostics.Debug.WriteLine(string.Format("평점:{0}", m.ToString()));
+
+                                    item_info.Add(_keyList.k_store_app_grade, m.ToString());
+                                    //foreach (var z1 in result1)
+                                    //{
+                                    //    System.Diagnostics.Debug.WriteLine(string.Format("part name:{0}", z1));
+                                    //    string strTmp = Regex.Replace(z1, @"\D", "");
+                                    //    System.Diagnostics.Debug.WriteLine(string.Format("replace name:{0}", strTmp));
+                                    //}
+                                    //_store_list.Add();
+                                }
+
+                     } //end of if(string null check)
+                        
+                    } //end of inner loop
+
+                    //취합된 정보를 list에 insert
+                    _store_list.Add(item_info);
+
+                    //다시 이전 gridview로 전환
+                    var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                    elementBack.Click();
+                    Thread.Sleep(2000);
 
                     //TO DO : Add Dictionary to List
 
-                    break;
+                    //1번만 하고 종료 시킬려고 break문 사용
+                    //break;
 
-                }
+                } //end of element search
 
 
 
@@ -219,6 +333,8 @@ namespace StoreManager
             _storeManager = MStoreManager.Instance;
             _myUtility = CUtility.Instance;
             _keyList = KeyList.Instance;
+
+            _store_list = new List<Dictionary<string, object>>();
 
             // _settingManager.connectUI(this);
             this.composeCategory_combo();
