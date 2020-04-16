@@ -96,6 +96,9 @@ namespace StoreManager
 
                 //Default Time out is 1 minutes
                 _deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao, TimeSpan.FromMinutes(2));
+                _deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(500);
+
+                //_deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao);
 
                 //  element = _deskTopSessoin.FindElementByAccessibilityId(assertion_name/*"ad"*/);
                 //AppiumWebElement alarm_button = _deskTopSessoin.FindElement(By.Name("알림 센터"));   //이방법도 OK
@@ -146,232 +149,256 @@ namespace StoreManager
                 string subclassName = this.cboSubclass.SelectedItem.ToString();
 
                 int loop_counter = 1;
-                foreach (var currItem in currList)
-                {
-                    //TOAN : 04/15/2020. W/A적용
-                    //아래와 같이 했을 때, back한이후에 다시 click했을때, currItem은 존재하지만, click이벤튼 정상동작하지 않는다
-                    //exception : An element command could not be completed because the element is not pointer- or keyboard interactable.
-                    //currItem.Click();
-                    //Thread.Sleep(3000);
-                    //_deskTopSessoin.Navigate().Back();
 
-                    //W/A적용 : Click을 보내기 전에 현재 currItem의 AutomationID를 이용해서 명시적으로 선택한 후
-                    //Click Event을 재적용한다.
-                    //_deskTopSessoin.manage().window().maximize();
-                    //Thread.Sleep(2000);
+                //start of testcode : 04/16
+                //foreach (var currItem in currList)
+                //{
+                //    //TOAN : 04/15/2020. W/A적용
+                //    //아래와 같이 했을 때, back한이후에 다시 click했을때, currItem은 존재하지만, click이벤튼 정상동작하지 않는다
+                //    //exception : An element command could not be completed because the element is not pointer- or keyboard interactable.
+                //    //currItem.Click();
+                //    //Thread.Sleep(3000);
+                //    //_deskTopSessoin.Navigate().Back();
 
-                    string itemID = currItem.GetAttribute("AutomationId");
-                    System.Diagnostics.Debug.WriteLine(string.Format("App Name:{0}", currItem.GetAttribute("Name")));
-                    System.Diagnostics.Debug.WriteLine(string.Format("Automation ID:{0}", currItem.GetAttribute("AutomationId")));
-                    System.Diagnostics.Debug.WriteLine(string.Format("Automation ID:{0}", itemID));
-                    var currTarget = _deskTopSessoin.FindElementByAccessibilityId(itemID);
+                //    //W/A적용 : Click을 보내기 전에 현재 currItem의 AutomationID를 이용해서 명시적으로 선택한 후
+                //    //Click Event을 재적용한다.
+                //    //_deskTopSessoin.manage().window().maximize();
+                //    //Thread.Sleep(2000);
 
-                    currTarget.Click();
-                   // Thread.Sleep(3000); //This is Okay
-                    Thread.Sleep(9000); //임의로시간 끌기 , 동영상 플레이 및 explicit wait테스트
+                //    string itemID = currItem.GetAttribute("AutomationId");
+                //    System.Diagnostics.Debug.WriteLine(string.Format("App Name:{0}", currItem.GetAttribute("Name")));
+                //    //System.Diagnostics.Debug.WriteLine(string.Format("Automation ID:{0}", currItem.GetAttribute("AutomationId")));
+                //    System.Diagnostics.Debug.WriteLine(string.Format("Automation ID:{0}", itemID));
+                //    var currTarget = _deskTopSessoin.FindElementByAccessibilityId(itemID);
 
-                    //개요를 선택해서 click. 개요를 선택해도 video가 play될 때,navigation화면이 없어진다
-                    //var overview = _deskTopSessoin.FindElementByAccessibilityId("pivot-tab-OverviewTab");
-                    //overview.Click();
-                    //Thread.Sleep(2000);
-                    //Thread.Sleep(50000); //미리보기 영상때문에 50초 대기. 이런 코드는 사용하면 안된다. 어떻게 매번 기다릴수 있는가.
+                //    currTarget.Click();
+                //   // Thread.Sleep(3000); //This is Okay
+                //    Thread.Sleep(/*9000*//*15000*/30000); //임의로 충분히 끌기 , 동영상 플레이가 재생되고 navigation bar가 재생중에 화면에 보이지 않는것을 재현하기 위함.
 
-                    //Thread.Sleep(19000); //3sec -> 4sec로 확장
-                    //_deskTopSessoin.Navigate().Back();
+                //    //개요를 선택해서 click. 개요를 선택해도 video가 play될 때,navigation화면이 없어진다
+                //    //var overview = _deskTopSessoin.FindElementByAccessibilityId("pivot-tab-OverviewTab");
+                //    //overview.Click();
+                //    //Thread.Sleep(2000);
+                //    //Thread.Sleep(50000); //미리보기 영상때문에 50초 대기. 이런 코드는 사용하면 안된다. 어떻게 매번 기다릴수 있는가.
 
-
-
-                    //setup explicit wait(smart wait)
-                    //maximum timeout을 설정하고, 해당시간까지 주기적으로 polling을 해서
-                    //timeout이 되기전에 target element을 발견하면, click이벤트를 실행 한다.
-                    //기존코드
-                    //WebDriverWait wait = new WebDriverWait(_deskTopSessoin, TimeSpan.FromMinutes(2));
-                    //var tElement = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("NavigationViewBackButton")));
-                    //tElement.Click();
-
-                    //상세보기 에서 비디오디스플레이가 있을 때 IsOffscreen은 false가 되고
-                    //하지만  IsEnabled=true이다. 이경우 element에 click과 같은 이벤트를 보내면 아래와 같은 exception이 발생
-                    //따라서 Explicit Wait Conditon에 이 조건을 주어야 한다.
-                    //Full Stacktrace: OpenQA.Selenium.WebDriverException: An element could not be located on the page using the given search parameters.
-                    //reference : https://github.com/Microsoft/WinAppDriver/issues/281
-
-                    var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
-                    System.Diagnostics.Debug.WriteLine(string.Format("IsOffScreen:{0}", elementBack.GetAttribute("IsOffscreen")));
-                    elementBack.Click();
-
-                    //_deskTopSessoin.Navigate().Back();
-                    //Thread.Sleep(3000);
-
-                    //var wait = new WebDriverWait(_deskTopSessoin, new TimeSpan(0, 2, 0));
-                    //var btnButton = _deskTopSessoin.FindElementByName("뒤로 단추");
-
-                    //Reference URL : https://stackoverflow.com/questions/53902369/explicit-wait-for-automating-windows-application-using-winappdriver
-                    //Reference URL : https://github.com/DotNetSeleniumTools/DotNetSeleniumExtras/blob/master/src/WaitHelpers/ExpectedConditions.cs
-
-                    ////var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("NavigationViewBackButton")));
-                    //var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Name("뒤로 단추"))); //fail
-                    //bool result = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.InvisibilityOfElementWithText(By.Name("홈"),"홈"));
+                //    //Thread.Sleep(19000); //3sec -> 4sec로 확장
+                //    //_deskTopSessoin.Navigate().Back();
 
 
-                    //if (result == true)
-                    //{
-                    //    var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
-                    //    elementBack.Click();
-                    //}
-                    //bool cResult =wait.Until(pred => btnButton.Displayed);
 
-                    //if(cResult==true)
-                    //{
-                    //    btnButton.Click();
-                    //}
-                }
+                //    //setup explicit wait(smart wait)
+                //    //maximum timeout을 설정하고, 해당시간까지 주기적으로 polling을 해서
+                //    //timeout이 되기전에 target element을 발견하면, click이벤트를 실행 한다.
+                //    //기존코드
+                //    //WebDriverWait wait = new WebDriverWait(_deskTopSessoin, TimeSpan.FromMinutes(2));
+                //    //var tElement = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("NavigationViewBackButton")));
+                //    //tElement.Click();
+
+                //    //상세보기 에서 비디오디스플레이가 있을 때 IsOffscreen은 false가 되고
+                //    //하지만  IsEnabled=true이다. 이경우 element에 click과 같은 이벤트를 보내면 아래와 같은 exception이 발생
+                //    //따라서 Explicit Wait Conditon에 이 조건을 주어야 한다.
+                //    //Full Stacktrace: OpenQA.Selenium.WebDriverException: An element could not be located on the page using the given search parameters.
+                //    //reference : https://github.com/Microsoft/WinAppDriver/issues/281
+
+                //    //var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                //    //System.Diagnostics.Debug.WriteLine(string.Format("[BackButton]Element displayed?:{0}", elementBack.Displayed));
+                //    //System.Diagnostics.Debug.WriteLine(string.Format("[BackButton]IsOffScreen?:{0}", elementBack.GetAttribute("IsOffscreen")));
+
+
+                //    //elementBack.Click();
+                //    //Thread.Sleep(3000);
+
+
+                //    //_deskTopSessoin.Navigate().Back();
+                //    //Thread.Sleep(3000);
+
+                //   var wait = new WebDriverWait(_deskTopSessoin, new TimeSpan(0, 2, 0));
+                //    //var btnButton = _deskTopSessoin.FindElementByName("뒤로 단추");
+
+                //    //Reference URL : https://stackoverflow.com/questions/53902369/explicit-wait-for-automating-windows-application-using-winappdriver
+                //    //Reference URL : https://github.com/DotNetSeleniumTools/DotNetSeleniumExtras/blob/master/src/WaitHelpers/ExpectedConditions.cs
+                //    //var element1 = wait.Until()
+                //    //NavigationViewBackButton
+
+                //    //SeleniumExtras를 사용할때 By.Id에서 id값은 automationID가 아니다.
+                //    //var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(By.Id("NavigationViewBackButton")));
+                //    var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(By.Name("뒤로 단추")));
+                //    element.Click();
+
+                //    //var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Name("뒤로 단추"))); //fail
+                //    //bool result = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.InvisibilityOfElementWithText(By.Name("홈"),"홈"));
+
+
+                //    //if (result == true)
+                //    //{
+                //    //    var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                //    //    elementBack.Click();
+                //    //}
+                //    //bool cResult =wait.Until(pred => btnButton.Displayed);
+
+                //    //if(cResult==true)
+                //    //{
+                //    //    btnButton.Click();
+                //    //}
+                //} //end of test code
 
 
                 //Below is data fetch logic
-                //    foreach (var currItem in currList)
-                //{
-                //    Dictionary<string, object> item_info = new Dictionary<string, object>();  //해당 아이템의 필요한 정보를 뽑아서 사전 형태로 저장
+                foreach (var currItem in currList)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("Data Fetch Logic Start:{0}", this.getCurrentTime()));
 
-                //    item_info.Add(_keyList.k_store_category, categoryName);
-                //    item_info.Add(_keyList.k_store_subclass, subclassName);
-                //    //Add Category and Subclass
+                    Dictionary<string, object> item_info = new Dictionary<string, object>();  //해당 아이템의 필요한 정보를 뽑아서 사전 형태로 저장
 
-                //    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("Name")));
-                //    System.Diagnostics.Debug.WriteLine(string.Format("loop counter:{0}", loop_counter));
-                //    System.Diagnostics.Debug.WriteLine(string.Format("Offscreen value:{0}", currItem.GetAttribute("IsOffScrren")));
-                //    //this.getTarget_Attributes(currItem);
-                //    //Assert.isTrue
+                    item_info.Add(_keyList.k_store_category, categoryName);
+                    item_info.Add(_keyList.k_store_subclass, subclassName);
+                    //Add Category and Subclass
 
-                //    Thread.Sleep(/*5000*/8000);
-                //    currItem.Click(); //해당 Item의 상세 정보 보기로 진입 한다.
+                    //System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("Name")));
+                    //System.Diagnostics.Debug.WriteLine(string.Format("loop counter:{0}", loop_counter));
+                    //System.Diagnostics.Debug.WriteLine(string.Format("Offscreen value:{0}", currItem.GetAttribute("IsOffScrren")));
+                    //this.getTarget_Attributes(currItem);
+                    //Assert.isTrue
 
-                //    //get 1 depth목록
-                //    Thread.Sleep(3000);
+                    //Thread.Sleep(/*5000*/8000);
+                    //TOAN : 04/16/2020. AutomatinID기준으로 item을 찾고 난 후 click진행(for loop반복시 이렇게 하지 않으면 exception발생)
+                    string itemID = currItem.GetAttribute("AutomationId");
+                    System.Diagnostics.Debug.WriteLine(string.Format("Automation ID:{0}", itemID));
+                    var currTarget = _deskTopSessoin.FindElementByAccessibilityId(itemID);
+                    //currTarget이 유효한지 확인 해보자(미니언즈)
+                    currTarget.Click();
 
-                //    //var elements = _deskTopSessoin.FindElementsByXPath("//Button[@Name=\"NavigationControl\"]/child::*");
-                //    //var elements = _deskTopSessoin.FindElementsByXPath("//Group[@AutomationId=\"pdp\"]//child::*");       //This is OK 
-                //    //var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//*");      //This is OK
-                //    //var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//child::*"); //This is OK
+                    //currItem.Click(); //해당 Item의 상세 정보 보기로 진입 한다.
 
-                //    //step1 : get App Title
-                //    var element = _deskTopSessoin.FindElementByAccessibilityId("DynamicHeading_productTitle");
-                //    string itemName = element.GetAttribute("Name");
+                    //get 1 depth목록
+                    //Thread.Sleep(3000);
 
-                //    item_info.Add(_keyList.k_store_app_name, itemName.ToString());
+                    //var elements = _deskTopSessoin.FindElementsByXPath("//Button[@Name=\"NavigationControl\"]/child::*");
+                    //var elements = _deskTopSessoin.FindElementsByXPath("//Group[@AutomationId=\"pdp\"]//child::*");       //This is OK 
+                    //var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//*");      //This is OK
+                    //var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//child::*"); //This is OK
 
-                //    //var elements = element.FindElementsByXPath("/following-sibling::*");
-                //    //var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*"); //This is OK
+                    //step1 : get App Title
+                    System.Diagnostics.Debug.WriteLine(string.Format("DynamicHeading_productTitle Element Find Start:{0}", this.getCurrentTime()));
+                    var element = _deskTopSessoin.FindElementByAccessibilityId("DynamicHeading_productTitle");
+                    string itemName = element.GetAttribute("Name");
 
-                //    //click한 이후에 형제 element들을 가지고 온ㄷ.
-                //    var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]//following-sibling::*"); //This is OK
+                    item_info.Add(_keyList.k_store_app_name, itemName.ToString());
 
-                //    foreach (var currElement in elements)
-                //    {
-                //        // System.Diagnostics.Debug.WriteLine(string.Format("child name:{0}", currElement.GetAttribute("Name"))); //print all sibling member
-                //        //Step1 : Get Publisher
-                //        string currString = currElement.GetAttribute("Name");
-                //        System.Diagnostics.Debug.WriteLine(string.Format("current element name:{0}", currString));
+                    //var elements = element.FindElementsByXPath("/following-sibling::*");
+                    //var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*"); //This is OK
 
-                //        if (!String.IsNullOrEmpty(currString))
-                //        { 
+                    //click한 이후에 형제 element들을 가지고 온ㄷ.
+                    System.Diagnostics.Debug.WriteLine(string.Format("[형제]DynamicHeading_productTitle Sibling Find Start:{0}", this.getCurrentTime()));
+                    var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]//following-sibling::*"); //This is OK
 
-                //                    if (currString.Equals("게시자"))
-                //                    {
-                //                        var childElement = currElement.FindElementByXPath("//child::Button"); //Get first button element
-                //                        string publisher_name = childElement.GetAttribute("Name");
-                //                        System.Diagnostics.Debug.WriteLine(string.Format("publisher name:{0}", childElement.GetAttribute("Name"))); //print all sibling member
-                //                        item_info.Add(_keyList.k_sotre_app_manufacture, publisher_name);
+                    foreach (var currElement in elements)
+                    {
+                        // System.Diagnostics.Debug.WriteLine(string.Format("child name:{0}", currElement.GetAttribute("Name"))); //print all sibling member
+                        //Step1 : Get Publisher
+                        string currString = currElement.GetAttribute("Name");
+                        System.Diagnostics.Debug.WriteLine(string.Format("current element name:{0}", currString));
 
-                //                    }
-                //                //Step2 : Get Category
-                //                   if (currString.Equals("범주"))
-                //                   {
+                        if (!String.IsNullOrEmpty(currString))
+                        {
 
-                //                    var childElements = currElement.FindElementsByXPath("//child::Button"); //Get All button elements
-                //                    string category_string = "";
-                //                    string suffix_string = "의 자세한 결과 보기";
-                //                    int suffix_length = suffix_string.Length;
+                            if (currString.Equals("게시자"))
+                            {
+                                var childElement = currElement.FindElementByXPath("//child::Button"); //Get first button element
+                                string publisher_name = childElement.GetAttribute("Name");
+                                System.Diagnostics.Debug.WriteLine(string.Format("publisher name:{0}", childElement.GetAttribute("Name"))); //print all sibling member
+                                item_info.Add(_keyList.k_sotre_app_manufacture, publisher_name);
 
-                //                    //Store의 범주는 눈에 보여지는 string과 ui element가 가지고 있는 형태가 틀리다.
-                //                    //예를 들어 Roblox의 경우 엑션 및 어드벤처,가족 및 어린이와 같이 표시되나.
-                //                    //내부적으로는
-                //                    //"액션 및 어드벤처의 자세한 결과 보기", "," ,"가족 및 어린이의 자세한 결과 보기"로 구성
-                //                    //즉, 접미사 형태로 "자세한 결과 보기"가 포함되어 있다. 따라서 이것에 대해 substring작업을 통해 별도 처리 한다.
-                //                    //위 작업은 suffix length와 substring을 통해 이루어 진다.
+                            }
+                            //Step2 : Get Category
+                            if (currString.Equals("범주"))
+                            {
 
+                                var childElements = currElement.FindElementsByXPath("//child::Button"); //Get All button elements
+                                string category_string = "";
+                                string suffix_string = "의 자세한 결과 보기";
+                                int suffix_length = suffix_string.Length;
 
-                //                    foreach (var currButton in childElements)
-                //                    {
-                //                        //category_string = String.Right()
-                //                        if (!String.IsNullOrEmpty(category_string))
-                //                        {
-                //                            string element_name = currButton.GetAttribute("Name");
-                //                            category_string = category_string + "," + element_name.Substring(0, element_name.Length - suffix_length);
-                //                        }
-                //                        else
-                //                        {
-                //                            string element_name = currButton.GetAttribute("Name");
-                //                            category_string = element_name.Substring(0, element_name.Length - suffix_length);
-                //                        }
+                                //Store의 범주는 눈에 보여지는 string과 ui element가 가지고 있는 형태가 틀리다.
+                                //예를 들어 Roblox의 경우 엑션 및 어드벤처,가족 및 어린이와 같이 표시되나.
+                                //내부적으로는
+                                //"액션 및 어드벤처의 자세한 결과 보기", "," ,"가족 및 어린이의 자세한 결과 보기"로 구성
+                                //즉, 접미사 형태로 "자세한 결과 보기"가 포함되어 있다. 따라서 이것에 대해 substring작업을 통해 별도 처리 한다.
+                                //위 작업은 suffix length와 substring을 통해 이루어 진다.
 
 
-                //                    }
-
-                //                    item_info.Add(_keyList.k_store_app_category, category_string); //앱이 상세 범부("액션 및 어드벤쳐", "가족 및 어린이"와 같은 표현
-
-                //                    System.Diagnostics.Debug.WriteLine(string.Format("item category name:{0}", category_string));
-                //                } //end of 범주
-
-                //                //Step3 : 평점 및 Review갯수 
-                //                if (currString.Contains("평점"))
-                //                {
-                //                    //This is abnormal case for element hierarchy. But, This is based on MS Naming Code
-                //                    var result1 = Regex.Split(currString, ":"); // ":"을 기준으로 2개의 파트로 구분 한다.
-                //                    //첫번째 파트에서 숫자만 찾아서, 천단위 구분기호를 넣어준다.(store상에 표기되는 그대로 표시하기 위함)
-                //                    string number_of_vote = Regex.Replace(result1[0], @"\D", "");
-                //                    int vote_number = int.Parse(number_of_vote);
-                //                    string c_number_of_vote = String.Format("{0:#,###}", vote_number);
-                //                    System.Diagnostics.Debug.WriteLine(string.Format("평가 갯수:{0}", c_number_of_vote));
-
-                //                    item_info.Add(_keyList.k_store_app_review, c_number_of_vote);
-
-                //                    //두번째 파트에서 실수를 찾는다. (4.0, 2.X와 같이 평점 표현)
-                //                    Regex r = new Regex(@"[0-9]+\.[0-9]+");
-                //                    Match m = r.Match(result1[1]);
-                //                    System.Diagnostics.Debug.WriteLine(string.Format("평점:{0}", m.ToString()));
-
-                //                    item_info.Add(_keyList.k_store_app_grade, m.ToString());
-                //                    //foreach (var z1 in result1)
-                //                    //{
-                //                    //    System.Diagnostics.Debug.WriteLine(string.Format("part name:{0}", z1));
-                //                    //    string strTmp = Regex.Replace(z1, @"\D", "");
-                //                    //    System.Diagnostics.Debug.WriteLine(string.Format("replace name:{0}", strTmp));
-                //                    //}
-                //                    //_store_list.Add();
-                //                }
-
-                //     } //end of if(string null check)
-                        
-                //    } //end of inner loop
-
-                //    //취합된 정보를 list에 insert
-                //    _store_list.Add(item_info);
-
-                //    //다시 이전 gridview로 전환
-                //    var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
-                //    elementBack.Click();
-                //    //Thread.Sleep(2000);
-                //    Thread.Sleep(/*5000*/8000);
-                //    //TO DO : Add Dictionary to List
-
-                //    //1번만 하고 종료 시킬려고 break문 사용
-                //    //break;
-
-                //    loop_counter = loop_counter + 1;
-
-                //} //end of element search
+                                foreach (var currButton in childElements)
+                                {
+                                    //category_string = String.Right()
+                                    if (!String.IsNullOrEmpty(category_string))
+                                    {
+                                        string element_name = currButton.GetAttribute("Name");
+                                        category_string = category_string + "," + element_name.Substring(0, element_name.Length - suffix_length);
+                                    }
+                                    else
+                                    {
+                                        string element_name = currButton.GetAttribute("Name");
+                                        category_string = element_name.Substring(0, element_name.Length - suffix_length);
+                                    }
 
 
+                                }
+
+                                item_info.Add(_keyList.k_store_app_category, category_string); //앱이 상세 범부("액션 및 어드벤쳐", "가족 및 어린이"와 같은 표현
+
+                                System.Diagnostics.Debug.WriteLine(string.Format("item category name:{0}", category_string));
+                            } //end of 범주
+
+                            //Step3 : 평점 및 Review갯수 
+                            if (currString.Contains("평점"))
+                            {
+                                //This is abnormal case for element hierarchy. But, This is based on MS Naming Code
+                                var result1 = Regex.Split(currString, ":"); // ":"을 기준으로 2개의 파트로 구분 한다.
+                                                                            //첫번째 파트에서 숫자만 찾아서, 천단위 구분기호를 넣어준다.(store상에 표기되는 그대로 표시하기 위함)
+                                string number_of_vote = Regex.Replace(result1[0], @"\D", "");
+                                int vote_number = int.Parse(number_of_vote);
+                                string c_number_of_vote = String.Format("{0:#,###}", vote_number);
+                                System.Diagnostics.Debug.WriteLine(string.Format("평가 갯수:{0}", c_number_of_vote));
+
+                                item_info.Add(_keyList.k_store_app_review, c_number_of_vote);
+
+                                //두번째 파트에서 실수를 찾는다. (4.0, 2.X와 같이 평점 표현)
+                                Regex r = new Regex(@"[0-9]+\.[0-9]+");
+                                Match m = r.Match(result1[1]);
+                                System.Diagnostics.Debug.WriteLine(string.Format("평점:{0}", m.ToString()));
+
+                                item_info.Add(_keyList.k_store_app_grade, m.ToString());
+                                //foreach (var z1 in result1)
+                                //{
+                                //    System.Diagnostics.Debug.WriteLine(string.Format("part name:{0}", z1));
+                                //    string strTmp = Regex.Replace(z1, @"\D", "");
+                                //    System.Diagnostics.Debug.WriteLine(string.Format("replace name:{0}", strTmp));
+                                //}
+                                //_store_list.Add();
+                            }
+
+                        } //end of if(string null check)
+
+                    } //end of inner loop
+
+                    //취합된 정보를 list에 insert
+                    _store_list.Add(item_info);
+
+                    //다시 이전 gridview로 전환
+                    var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                    elementBack.Click();
+                    //Thread.Sleep(2000);
+                    //Thread.Sleep(/*5000*/8000);
+                    //TO DO : Add Dictionary to List
+
+                    //1번만 하고 종료 시킬려고 break문 사용(test용도)
+                    //break;
+
+                    loop_counter = loop_counter + 1;
+
+                } //end of element search
+
+                System.Diagnostics.Debug.WriteLine(string.Format("Data Fetch Logic End:{0}", this.getCurrentTime()));
 
 
 
@@ -417,6 +444,7 @@ namespace StoreManager
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(string.Format("Full Stacktrace: {0}", ex.ToString()));
+                System.Diagnostics.Debug.WriteLine(string.Format("Exception Occurred Time:{0}", this.getCurrentTime()));
             }
             finally
             {
@@ -436,6 +464,8 @@ namespace StoreManager
             this.composeCategory_combo();
             string categoryName = this.cboCategory.SelectedItem.ToString();
             this.composeSubclass_combo(categoryName);
+
+            //this.initDeskTopSession();
         }
 
         public void composeCategory_combo()
@@ -543,16 +573,24 @@ namespace StoreManager
             //keyword : An element could not be located on the page using the given search parameters
             try
             {
-                this.initDeskTopSession();
-                System.Diagnostics.Debug.WriteLine("Element Search:{0}", this.getCurrentTime());
+                //this.initDeskTopSession();
+                // System.Diagnostics.Debug.WriteLine("Element Search:{0}", this.getCurrentTime());
 
                 //test1 : 존재하지 않는 element name. 해당 name을 가진 element가 없으므로 2분뒤에 timeout발생(timed out after 120 seconds)
-                AppiumWebElement start_button = _deskTopSessoin.FindElement(By.Name("시작"));
-                start_button.Click();
+                //AppiumWebElement start_button = _deskTopSessoin.FindElement(By.Name("시작"));
+                //start_button.Click();
                 //test2 : 존재하지 않는 element id. 해당 name을 가진 element가 없으므로 2분뒤에 timeout발생(timed out after 120 seconds)
                 //AppiumWebElement start_button = _deskTopSessoin.FindElementByAccessibilityId("시작356");
+
+                //Explicit wait를 테스트하지. 아니면 내가 만들자.
+                //System.Diagnostics.Debug.WriteLine(string.Format("Hey Connect"));
+                System.Diagnostics.Debug.WriteLine(string.Format("Element Searching Start:{0}", this.getCurrentTime()));
+                var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                System.Diagnostics.Debug.WriteLine(string.Format("Element Action Start:{0}", this.getCurrentTime()));
+                elementBack.Click();
+                System.Diagnostics.Debug.WriteLine(string.Format("Element Action is completed:{0}", this.getCurrentTime()));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(string.Format("Full Stacktrace: {0}", ex.ToString()));
                 System.Diagnostics.Debug.WriteLine("Exception Expire:{0}", this.getCurrentTime());

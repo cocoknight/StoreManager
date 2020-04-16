@@ -243,12 +243,12 @@
             // 
             // cmdUseCase
             // 
-            this.cmdUseCase.Location = new System.Drawing.Point(853, 556);
+            this.cmdUseCase.Location = new System.Drawing.Point(58, 556);
             this.cmdUseCase.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cmdUseCase.Name = "cmdUseCase";
             this.cmdUseCase.Size = new System.Drawing.Size(168, 18);
             this.cmdUseCase.TabIndex = 22;
-            this.cmdUseCase.Text = "Usecase";
+            this.cmdUseCase.Text = "Usecase(Explicit Wait)";
             this.cmdUseCase.UseVisualStyleBackColor = true;
             this.cmdUseCase.Click += new System.EventHandler(this.cmdUseCase_Click);
             // 
