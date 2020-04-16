@@ -40,7 +40,7 @@ namespace StoreManager
             string deviceName = "WindowsPC";
             string app_id = "";
 
-            if (_deskTopSessoin != null)
+            if (_deskTopSessoin == null)
             {
                 try
                 {
@@ -52,7 +52,8 @@ namespace StoreManager
                     _deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao, TimeSpan.FromMinutes(2));
                     //_deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao);
                     //_deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
-                    _deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
+                    //_deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
+                    _deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(150);
 
                 }
                 catch (Exception ex)
