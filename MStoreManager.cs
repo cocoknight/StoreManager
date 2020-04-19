@@ -257,8 +257,8 @@ namespace StoreManager
 
                     Dictionary<string, object> item_info = new Dictionary<string, object>();  //해당 아이템의 필요한 정보를 뽑아서 사전 형태로 저장
 
-                    //item_info.Add(_keyList.k_store_category, categoryName);
-                    //item_info.Add(_keyList.k_store_subclass, subclassName);
+                    item_info.Add(_keyList.k_store_category, _categoryName);
+                    item_info.Add(_keyList.k_store_subclass, _subclassName);
                     //Add Category and Subclass
 
                     //System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("Name")));
@@ -404,11 +404,19 @@ namespace StoreManager
                     System.Diagnostics.Debug.WriteLine(string.Format("Loop Counter:{0}", loop_counter));
                     loop_counter = loop_counter + 1;
                     System.Diagnostics.Debug.WriteLine(string.Format("Data Fetch Logic End:{0}", _myUtility.getCurrentTime()));
+
+                    //TOAN : 04/19/2020. Game Ranking의 경우. 30개 항목만 구한다.
+                    if (loop_counter > 30)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                      _store_test_list.Add(item_info);
+                    }
                 } //end of element search
 
                 
-
-
             }
             catch (Exception ex)
             {
@@ -422,11 +430,21 @@ namespace StoreManager
 
 
 
+            //최종 취합된 _store_test_list출력(30개만 출력하자)
+            int lpCount = 1;
+            foreach (var currTc in _store_test_list)
+            {
+                foreach (var currObj in currTc)
+                {
+                    System.Diagnostics.Debug.WriteLine(String.Format("Count:{0}, Key:{1}, Value:{2}", lpCount, currObj.Key, currObj.Value));
+                    //System.Diagnostics.Debug.WriteLine("key:{0}, value:{1}", currObj.Key, currObj.Value);
+                    lpCount = lpCount + 1;
+                }
+            }
+            
 
 
-
-
-
+            //이제 취합 내용을 ListView로 업데이트 한다.
 
 
 

@@ -39,8 +39,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.cboSubclass = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.grpTestResult = new System.Windows.Forms.GroupBox();
+            this.ResultListView = new System.Windows.Forms.ListView();
             this.tabTestResult = new System.Windows.Forms.TabPage();
             this.btnDeskTop = new System.Windows.Forms.Button();
             this.btnStoreSession = new System.Windows.Forms.Button();
@@ -49,7 +49,7 @@
             this.tabStoreHandler.SuspendLayout();
             this.tabTestInfo.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.grpTestResult.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabStoreHandler
@@ -60,18 +60,18 @@
             this.tabStoreHandler.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabStoreHandler.Name = "tabStoreHandler";
             this.tabStoreHandler.SelectedIndex = 0;
-            this.tabStoreHandler.Size = new System.Drawing.Size(993, 514);
+            this.tabStoreHandler.Size = new System.Drawing.Size(1072, 514);
             this.tabStoreHandler.TabIndex = 0;
             // 
             // tabTestInfo
             // 
             this.tabTestInfo.Controls.Add(this.groupBox2);
-            this.tabTestInfo.Controls.Add(this.groupBox1);
+            this.tabTestInfo.Controls.Add(this.grpTestResult);
             this.tabTestInfo.Location = new System.Drawing.Point(4, 22);
             this.tabTestInfo.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabTestInfo.Name = "tabTestInfo";
             this.tabTestInfo.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabTestInfo.Size = new System.Drawing.Size(985, 488);
+            this.tabTestInfo.Size = new System.Drawing.Size(1064, 488);
             this.tabTestInfo.TabIndex = 0;
             this.tabTestInfo.Text = "Test Information";
             this.tabTestInfo.UseVisualStyleBackColor = true;
@@ -90,7 +90,7 @@
             this.groupBox2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.groupBox2.Size = new System.Drawing.Size(873, 79);
+            this.groupBox2.Size = new System.Drawing.Size(987, 79);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Test Info";
@@ -175,27 +175,27 @@
             this.label2.Text = "소분류 : ";
             this.label2.Click += new System.EventHandler(this.Label2_Click);
             // 
-            // groupBox1
+            // grpTestResult
             // 
-            this.groupBox1.Controls.Add(this.listView1);
-            this.groupBox1.Location = new System.Drawing.Point(44, 89);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.groupBox1.Size = new System.Drawing.Size(909, 384);
-            this.groupBox1.TabIndex = 4;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "검색 결과";
+            this.grpTestResult.Controls.Add(this.ResultListView);
+            this.grpTestResult.Location = new System.Drawing.Point(44, 89);
+            this.grpTestResult.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.grpTestResult.Name = "grpTestResult";
+            this.grpTestResult.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.grpTestResult.Size = new System.Drawing.Size(987, 384);
+            this.grpTestResult.TabIndex = 4;
+            this.grpTestResult.TabStop = false;
+            this.grpTestResult.Text = "검색 결과";
             // 
-            // listView1
+            // ResultListView
             // 
-            this.listView1.HideSelection = false;
-            this.listView1.Location = new System.Drawing.Point(35, 18);
-            this.listView1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(839, 351);
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.ResultListView.HideSelection = false;
+            this.ResultListView.Location = new System.Drawing.Point(19, 18);
+            this.ResultListView.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.ResultListView.Name = "ResultListView";
+            this.ResultListView.Size = new System.Drawing.Size(946, 351);
+            this.ResultListView.TabIndex = 0;
+            this.ResultListView.UseCompatibleStateImageBehavior = false;
             // 
             // tabTestResult
             // 
@@ -270,7 +270,7 @@
             this.tabTestInfo.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
+            this.grpTestResult.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -290,8 +290,8 @@
         public System.Windows.Forms.TextBox txtEndDate;
         public System.Windows.Forms.TextBox txtStartDate;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.GroupBox grpTestResult;
+        private System.Windows.Forms.ListView ResultListView;
         private System.Windows.Forms.Button btnStoreSession;
         private System.Windows.Forms.Button cmdRun;
         private System.Windows.Forms.Button cmdUseCase;

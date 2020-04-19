@@ -1,4 +1,17 @@
-﻿using System;
+﻿/*********************************************************************************************************-- 
+    
+    Copyright (c) 2020, YongMin Kim. All rights reserved. 
+    This file is licenced under a Creative Commons license: 
+    http://creativecommons.org/licenses/by/2.5/ 
+
+    *Description : This is control and UI Logic for store automation
+    * 
+    2020-04-13: Make a basic operation 
+    2020-04-19: Update test result to listview
+
+--***********************************************************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -30,6 +43,7 @@ namespace StoreManager
 
 
         public List<Dictionary<string, object>> _store_list;
+        List<string> _testresult_columninfos;
 
         MStoreManager _storeManager;
         public Form1()
@@ -288,7 +302,7 @@ namespace StoreManager
                     //var elements = element.FindElementsByXPath("/following-sibling::*");
                     //var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*"); //This is OK
 
-                    //click한 이후에 형제 element들을 가지고 온ㄷ.
+                    //click한 이후에 형제 element들을 가지고 온다.
                     System.Diagnostics.Debug.WriteLine(string.Format("[형제]DynamicHeading_productTitle Sibling Find Start:{0}", this.getCurrentTime()));
                     var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]//following-sibling::*"); //This is OK
 
@@ -459,6 +473,7 @@ namespace StoreManager
             _keyList = KeyList.Instance;
 
             _store_list = new List<Dictionary<string, object>>();
+            _testresult_columninfos = new List<string>();
 
             // _settingManager.connectUI(this);
             this.composeCategory_combo();
@@ -466,6 +481,47 @@ namespace StoreManager
             this.composeSubclass_combo(categoryName);
 
             //this.initDeskTopSession();
+
+            try
+            {
+                this.initTestResultList();
+                
+            }catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("Full Stacktrace: {0}", ex.ToString()));
+            }
+        }
+
+        public void initTestResultList()
+        {
+            //Display Column Title
+           if (grpTestResult.Controls.ContainsKey("ResultListView"))
+            {
+                ListView resultList= (ListView)grpTestResult.Controls["ResultListView"];
+
+                resultList.View = View.Details;
+                resultList.GridLines = true;
+                resultList.FullRowSelect = true;
+                resultList.CheckBoxes = false;
+
+                resultList.Columns.Add(_keyList.k_store_category, "대분류", 150);
+                resultList.Columns.Add(_keyList.k_store_subclass, "소분류", 200);
+                resultList.Columns.Add(_keyList.k_store_app_name, "앱이름", 200);
+                resultList.Columns.Add(_keyList.k_sotre_app_manufacture, "제작사",200);
+                resultList.Columns.Add(_keyList.k_store_app_category, "앱유형", 200);
+                resultList.Columns.Add(_keyList.k_store_app_grade, "앱평점", 200);
+                resultList.Columns.Add(_keyList.k_store_app_review, "앱평가 갯수", 200);
+
+                //_testresult_columninfos
+                _testresult_columninfos.Add(_keyList.k_store_category);
+                _testresult_columninfos.Add(_keyList.k_store_subclass);
+                _testresult_columninfos.Add(_keyList.k_store_app_name);
+                _testresult_columninfos.Add(_keyList.k_sotre_app_manufacture);
+                _testresult_columninfos.Add(_keyList.k_store_app_category);
+                _testresult_columninfos.Add(_keyList.k_store_app_grade);
+                _testresult_columninfos.Add(_keyList.k_store_app_review);
+
+            }
         }
 
         public void composeCategory_combo()
