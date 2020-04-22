@@ -8,7 +8,7 @@
     * 
     2020-04-13: Make a basic operation 
     2020-04-19: Update test result to listview
-
+    2020-04-22: Make a export module
 --***********************************************************************************************************/
 
 using System;
@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -46,9 +47,20 @@ namespace StoreManager
         List<string> _testresult_columninfos;
 
         MStoreManager _storeManager;
+
+        CReportManager _reportManager;
+        CResultLoader _resultLoader;
+
+
         public Form1()
         {
             InitializeComponent();
+
+            _reportManager = CReportManager.Instance;
+            _resultLoader = CResultLoader.Instance;
+
+            _reportManager.connectUI(this);
+            _resultLoader.connectUI(this);
         }
 
         private void Label7_Click(object sender, EventArgs e)
@@ -478,6 +490,8 @@ namespace StoreManager
             _store_list = new List<Dictionary<string, object>>();
             _testresult_columninfos = new List<string>();
 
+            txtTestTitle.Text = "Windows Store_KOR 앱 &Game";
+
             // _settingManager.connectUI(this);
             this.composeCategory_combo();
             string categoryName = this.cboCategory.SelectedItem.ToString();
@@ -573,14 +587,17 @@ namespace StoreManager
         {
             //cboCategory.Items.Add(currObj.ToString());
             cboCategory.Items.Add("게임");
-            cboCategory.Items.Add("엔터테인먼트");
-            cboCategory.Items.Add("생산성");
+            cboCategory.Items.Add("앱");
+            //cboCategory.Items.Add("엔터테인먼트");
+            //cboCategory.Items.Add("생산성");
             cboCategory.SelectedIndex = 0;
         }
 
         public void composeSubclass_combo(string name)
         {
             //Category Combo값에 따라 combo-box구성이 틀려진다.
+            cboSubclass.Items.Clear();
+
             switch (name)
             {
                 case "게임":
@@ -590,15 +607,22 @@ namespace StoreManager
                         cboSubclass.SelectedIndex = 0;
                         break;
                     }
-                case "엔터테인먼트":
+                case "앱":
                     {
+                        cboSubclass.Items.Add("무료인기앱");
+                        cboSubclass.Items.Add("유료인기앱");
+                        cboSubclass.SelectedIndex = 0;
+                        break;
+                    }
+                //case "엔터테인먼트":
+                //    {
 
-                        break;
-                    }
-                case "생산성":
-                    {
-                        break;
-                    }
+                //        break;
+                //    }
+                //case "생산성":
+                //    {
+                //        break;
+                //    }
                 default:
                     break;
             }
@@ -664,7 +688,7 @@ namespace StoreManager
             //this.composeSubclass_combo
             string categoryName = "";
             categoryName = this.cboCategory.SelectedItem.ToString();
-
+            this.composeSubclass_combo(categoryName);
         }
 
         private void cmdUseCase_Click(object sender, EventArgs e)
@@ -766,5 +790,62 @@ namespace StoreManager
             //}
 
         }
+
+        private void btnReport_Click(object sender, EventArgs e)
+        {
+            //Report to XML
+
+
+            string dirName = @"C:\storeranking";
+            //string dirName = "C:\\bomautomation";
+            DirectoryInfo di = new DirectoryInfo(dirName);
+
+            if (di.Exists == false)
+            {
+                di.Create();
+            }
+
+            this.HandleExcelReport(di, dirName);
+          
+
+        }
+
+
+
+        public void HandleExcelReport(DirectoryInfo dInfo, string directory)
+        {
+            System.Diagnostics.Debug.WriteLine(string.Format("Parsing HandleExcelReport"));
+
+            //출력을 Excel로 지정 가능하다.
+            string fileName = txtTestTitle.Text;
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.FileName = fileName;
+            saveFileDialog.Filter = "Excel|*.xlsx";
+            saveFileDialog.Title = "Save an Excel File";
+            saveFileDialog.InitialDirectory = dInfo.ToString();
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (saveFileDialog.FileName != "")
+                {
+                    string cfileName = saveFileDialog.FileName;
+                    Properties.Settings.Default.s_filepath = cfileName;
+                    Properties.Settings.Default.Save();
+
+                    System.Diagnostics.Debug.WriteLine(string.Format("Save File Name:{0}", saveFileDialog.FileName.ToString()));
+                    System.Diagnostics.Debug.WriteLine(string.Format("Save File Name Confirm:{0}", cfileName));
+
+                    //Run Async
+                    Dictionary<string, string> sendInfo = new Dictionary<string, string>();
+                    string workerMode = EnumSet.ActionMode.STORE_AUTOMATION_REPORT.ToString();
+                    sendInfo.Add(_keyList.k_worker_mode, workerMode);
+                    sendInfo.Add(_keyList.k_test_result_name, cfileName);
+                   
+                    _reportManager.worker.RunWorkerAsync(sendInfo);
+                }
+            }
+
+        }
+
     }
 }

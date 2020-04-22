@@ -34,6 +34,7 @@ namespace StoreManager
         public enum ActionMode
         {
             STORE_AUTOMATION_TEST,
+            STORE_AUTOMATION_REPORT,
             TEST_MAX
         }
     }

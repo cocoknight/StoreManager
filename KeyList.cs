@@ -97,6 +97,8 @@ namespace StoreManager
             k_store_app_category = "k_store_app_category";  //앱 유형(성격)
             k_store_app_grade = "k_store_app_grade"; //앱 평점
             k_store_app_review = "k_store_app_review"; //앱 평가 개수
+
+            k_test_result_name = "k_test_result_name";
         }
 
         public static KeyList Instance
@@ -151,7 +153,11 @@ namespace StoreManager
             //set;
         }
 
-
+        public string k_test_result_name
+        {
+            get;
+            //set;
+        }
 
 
 
