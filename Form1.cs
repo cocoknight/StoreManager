@@ -468,7 +468,10 @@ namespace StoreManager
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            CheckForIllegalCrossThreadCalls = false;
+
             _storeManager = MStoreManager.Instance;
+            _storeManager.connectUI(this);
             _myUtility = CUtility.Instance;
             _keyList = KeyList.Instance;
 
@@ -522,6 +525,48 @@ namespace StoreManager
                 _testresult_columninfos.Add(_keyList.k_store_app_review);
 
             }
+        }
+
+        public void TestResultToListView(List<Dictionary<string, object>> testResult)
+        {
+            //update 
+            //ListView resultList= (ListView)grpTestResult.Controls["ResultListView"];
+            ListView itemListView = (ListView)grpTestResult.Controls["ResultListView"];
+            string[] row = { "", "", "", "", "", "", "" };
+
+            //k_store_category = "k_store_category";   //store대분류 (게임,엔터테인먼트,생산성,특가)
+            //k_store_subclass = "k_store_subclass";   //store소분류 (최다판매게임,무료인기게임,유료인기게임,새롭고 주목할 만한 PC게임 등..)
+            //k_store_app_name = "k_store_app_name";   //앱이름
+            //k_sotre_app_manufacture = "k_sotre_app_manufacture";  //앱 제작사
+            //k_store_app_category = "k_store_app_category";  //앱 유형(성격)
+            //k_store_app_grade = "k_store_app_grade"; //앱 평점
+            //k_store_app_review = "k_store_app_review"; //앱 평가 개수
+
+            //TOAN : 11/25/2019. code-change
+            if (itemListView.Items.Count > 0)
+            {
+                itemListView.Items.Clear();
+            }
+
+            foreach (var currDic in testResult)
+            {
+                ListViewItem cItem = new ListViewItem(row);
+                cItem.UseItemStyleForSubItems = false;  //이 설정이 없으면 subitem의 색상이 변경되지 않는다.
+
+                foreach (string name in _testresult_columninfos)
+                {
+
+                    if (currDic.ContainsKey(name))
+                    {
+                        int columnIndex = itemListView.Columns.IndexOfKey(name);
+                        cItem.SubItems[columnIndex].Text = currDic[name].ToString(); //columninfo에 해당하는 키의 값은 string이다.
+                    }
+                }
+
+                itemListView.Items.Add(cItem);
+            }
+
+
         }
 
         public void composeCategory_combo()
@@ -699,11 +744,27 @@ namespace StoreManager
             return currTime;
         }
 
+        private void BtnCategory_Click(object sender, EventArgs e)
+        {
+            //Get Category Element with XPath
+            this.initDeskTopSession();
 
+            //Find Element with xpath
+            //var elements = _deskTopSessoin.FindElementsByXPath("//Button[@Name=\"NavigationControl\"]/child::*");
+            //var elements = _deskTopSessoin.FindElementsByXPath("//Group[@AutomationId=\"pdp\"]//child::*");       //This is OK 
+            //var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//*");      //This is OK
+            //var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//child::*"); //This is OK
 
+            var elements = _deskTopSessoin.FindElementsByXPath("//Group[@AutomationId=\"범주-toggle-target\"]//child::*");
+            System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", elements[0].GetAttribute("Name")));
+            System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", elements[1].GetAttribute("Name")));
 
+            //아래 loop에서 2번째 항목이 "범주"에 해당하는 값이 된다.
+            //foreach (var currItem in elements)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("Name")));
+            //}
 
-
-
+        }
     }
 }

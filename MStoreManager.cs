@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Windows;
-
+using OpenQA.Selenium.Support.UI;
 
 namespace StoreManager
 {
@@ -39,6 +39,7 @@ namespace StoreManager
 
         public string _categoryName = "";
         public string _subclassName = "";
+       
 
         private MStoreManager():base()
         {
@@ -101,7 +102,8 @@ namespace StoreManager
         void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine(string.Format("Run Completed"));
-
+            //TOAN : 04/22/2020. update test
+            _uiManager.TestResultToListView(_store_test_list);
         }
 
         void do_automation_parsing(Dictionary<string, string> info)
@@ -184,9 +186,27 @@ namespace StoreManager
             _store_test_list.Add(item_testcase);
         }
 
+        //TOAN : 04/22/2020. Explicit Wait를 사용한 Code로 구현(Soor or Later)
+        //Thread.Sleep, Implicit Wait, Explicit Wait 무슨말을 하려는줄 알겠다.
+        //특히 Thread.Sleep은 Selenium(or Appim)설계 로직에 반영되지 않았기 때문에 사용하면 안되는거 이해함.
+        //하지만, Implicit Wait와 Explicit Wait는 진짜 정확한 Factor을 모르겠다.
+        //Explicit Wait을 사용해야만 하는 정확한 Fact가 있는가....
+        
+        void do_free_game_ranking_v1()
+        {
+            var wait = new WebDriverWait(_deskTopSessoin, new TimeSpan(0, 2, 0));
+            var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(By.Name("뒤로 단추")));
+        }
 
+
+        //TOAN : 04/17/2020. Automation with Implicit Waiting time.
         void do_free_game_ranking()
         {
+
+
+            //setup implicit wait time. Have to setup implicit wait time
+            _deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(200);
+
 
 
             //FOZA Horizon demo확인해 볼것(너무 길다)
@@ -213,10 +233,10 @@ namespace StoreManager
                     start_button.Click();
                 }
 
-                Thread.Sleep(3000);
+                //Thread.Sleep(3000);
                 AppiumWebElement store_button = _deskTopSessoin.FindElementByAccessibilityId("tile-P~Microsoft.WindowsStore_8wekyb3d8bbwe!App");
 
-                Thread.Sleep(2000);
+                //Thread.Sleep(2000);
                 if (store_button != null)
                 {
                     System.Diagnostics.Debug.WriteLine(string.Format("Find Store Btn"));
@@ -224,7 +244,7 @@ namespace StoreManager
                 }
 
                 //여기까지 문제 없었으면 Store창이 정상적으로 display되어졌을 것이다.
-                Thread.Sleep(7000);
+                //Thread.Sleep(7000);
                 AppiumWebElement gaming_button = _deskTopSessoin.FindElementByAccessibilityId("gaming");
                 if (gaming_button != null)
                 {
@@ -232,12 +252,12 @@ namespace StoreManager
                     gaming_button.Click();
                 }
 
-                Thread.Sleep(2000);
+                //Thread.Sleep(2000);
                 AppiumWebElement freegame_list = _deskTopSessoin.FindElement(By.Name("모두 표시 99/+  무료 인기 게임"));
                 freegame_list.Click();
 
 
-                Thread.Sleep(5000);
+                //Thread.Sleep(5000);
                 var gameElement = _deskTopSessoin.FindElementsByClassName("GridViewItem");
                 var currList = gameElement.ToList();
                 System.Diagnostics.Debug.WriteLine(string.Format("[Setting MenuList]List Count:{0}", currList.Count));
@@ -248,7 +268,8 @@ namespace StoreManager
 
                 int loop_counter = 1;
 
-               
+                //TOAN : 04/22/2020. Debugging for Form1. below is ok
+                //_uiManager.HeyConnect();
 
                 //Below is data fetch logic
                 foreach (var currItem in currList)
@@ -276,6 +297,9 @@ namespace StoreManager
                     System.Diagnostics.Debug.WriteLine(string.Format("Current Element ID:{0}", currTarget));
                     currTarget.Click();
 
+                   
+
+                    //Thread.Sleep(2000); //이게 답이 될까? 안되면 Explicit wait를 사용하자.
                     //currItem.Click(); //해당 Item의 상세 정보 보기로 진입 한다.
 
                     //get 1 depth목록
@@ -296,9 +320,15 @@ namespace StoreManager
                     //var elements = element.FindElementsByXPath("/following-sibling::*");
                     //var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*"); //This is OK
 
-                    //click한 이후에 형제 element들을 가지고 온ㄷ.
+                    //click한 이후에 형제 element들을 가지고 온다.
                     System.Diagnostics.Debug.WriteLine(string.Format("[형제]DynamicHeading_productTitle Sibling Find Start:{0}", _myUtility.getCurrentTime()));
                     var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]//following-sibling::*"); //This is OK
+
+
+                    //TOAN : 04/22/2020. 하위 element에 범주 자체가 없는 경우도 발생
+                    //이경우는 개요 항목에서 "범주"를 다시 가지고 온다.
+                    //category_string변수 위치 변경.
+                    string category_string = "";
 
                     foreach (var currElement in elements)
                     {
@@ -306,6 +336,7 @@ namespace StoreManager
                         //Step1 : Get Publisher
                         string currString = currElement.GetAttribute("Name");
                         System.Diagnostics.Debug.WriteLine(string.Format("current element name:{0}", currString));
+
 
                         if (!String.IsNullOrEmpty(currString))
                         {
@@ -323,9 +354,10 @@ namespace StoreManager
                             {
 
                                 var childElements = currElement.FindElementsByXPath("//child::Button"); //Get All button elements
-                                string category_string = "";
+                                //string category_string = "";
+                                category_string = "";
                                 string suffix_string = "의 자세한 결과 보기";
-                                int suffix_length = suffix_string.Length;
+                                int suffix_length = suffix_string.Length; //범주에 "의 자세한 결과 보기"가 붙기 때문에, 해당 Title제거
 
                                 //Store의 범주는 눈에 보여지는 string과 ui element가 가지고 있는 형태가 틀리다.
                                 //예를 들어 Roblox의 경우 엑션 및 어드벤처,가족 및 어린이와 같이 표시되나.
@@ -385,9 +417,21 @@ namespace StoreManager
                                 //_store_list.Add();
                             }
 
+
+
                         } //end of if(string null check)
 
                     } //end of inner loop
+
+
+                    //TOAN : 04/22/2020. inner for-loop에서 "범주"를 찾지 못한 경우.
+                    //"개요" 영역에서 범주 값을 가지고 오기 위해, 다시한번 query수행.
+                    if (String.IsNullOrEmpty(category_string))
+                    {
+                        var category_elements = _deskTopSessoin.FindElementsByXPath("//Group[@AutomationId=\"범주-toggle-target\"]//child::*");
+                        category_string = category_elements[1].GetAttribute("Name").ToString();
+                        item_info.Add(_keyList.k_store_app_category, category_string);
+                    }
 
                     //취합된 정보를 list에 insert
                     //_store_list.Add(item_info);
@@ -406,8 +450,11 @@ namespace StoreManager
                     System.Diagnostics.Debug.WriteLine(string.Format("Data Fetch Logic End:{0}", _myUtility.getCurrentTime()));
 
                     //TOAN : 04/19/2020. Game Ranking의 경우. 30개 항목만 구한다.
-                    if (loop_counter > 30)
+                    //if (loop_counter > 30)
+                    if (loop_counter > 4)
                     {
+                        //TOAN : 04/22/2020. Debugging for Form1
+                        _uiManager.HeyConnect();
                         break;
                     }
                     else
@@ -441,8 +488,10 @@ namespace StoreManager
                     lpCount = lpCount + 1;
                 }
             }
-            
 
+            //UI Update for View
+            //_uiManager.TestResultToListView(_store_test_list);
+           
 
             //이제 취합 내용을 ListView로 업데이트 한다.
 

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Windows;
+using OpenQA.Selenium.Support.UI;
 
 namespace StoreManager
 {
@@ -15,6 +16,8 @@ namespace StoreManager
 
         public Form1 _uiManager;
         public WindowsDriver<WindowsElement> _deskTopSessoin;
+        public WebDriverWait _wait;
+
 
         public BaseManager()
         {
@@ -49,11 +52,13 @@ namespace StoreManager
                     ao.AddAdditionalCapability("platformName", platformName);
                     ao.AddAdditionalCapability("deviceName", deviceName);
 
-                    _deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao, TimeSpan.FromMinutes(2));
+                    //_deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao, TimeSpan.FromMinutes(2));
+                    _deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao, TimeSpan.FromMinutes(3));
                     //_deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao);
                     //_deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
                     //_deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
-                    _deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(150);
+                    // _deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(150);
+                    //_deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(200);
 
                 }
                 catch (Exception ex)
