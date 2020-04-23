@@ -20,6 +20,7 @@ using System.Threading;
 using System.ComponentModel;
 using Microsoft.Office.Interop.Excel;
 using System.IO;
+using System.Windows.Forms;
 
 namespace StoreManager
 {
@@ -137,6 +138,9 @@ namespace StoreManager
                 _wb = _app.Workbooks.Add(XlSheetType.xlWorksheet);
                 _ws = (Worksheet)_app.ActiveSheet;
                this.reportTestInfo();
+               this.reportFreeGame_ko();
+               this.reportPaidApp_ko();
+               
                 //this.reportBOMTest_Result();
                this.savetofile(fileName);
             }
@@ -152,6 +156,79 @@ namespace StoreManager
             }
         }
 
+        public void reportFreeGame_ko()
+        {
+            _currRow += 1;
+            _currCol = _startCol;
+
+            //k_store_category = "k_store_category";   //store대분류 (게임,엔터테인먼트,생산성,특가)
+            //k_store_subclass = "k_store_subclass";   //store소분류 (최다판매게임,무료인기게임,유료인기게임,새롭고 주목할 만한 PC게임 등..)
+            //k_store_app_name = "k_store_app_name";   //앱이름
+            //k_sotre_app_manufacture = "k_sotre_app_manufacture";  //앱 제작사
+            //k_store_app_category = "k_store_app_category";  //앱 유형(성격)
+            //k_store_app_grade = "k_store_app_grade"; //앱 평점
+            //k_store_app_review = "k_store_app_review"; //앱 평가 개수
+
+            if (_form1.grpTestResult.Controls.ContainsKey("ResultListView"))
+            {
+                ListView BOMListView = (ListView)_form1.grpTestResult.Controls["ResultListView"];
+
+                foreach (System.Windows.Forms.ListViewItem item in BOMListView.Items)
+                {
+                    _ws.Cells[_currRow, _startCol] = item.SubItems[0].Text;
+                    _ws.Cells[_currRow, _startCol + 1] = item.SubItems[1].Text;
+                    _ws.Cells[_currRow, _startCol + 2] = item.SubItems[2].Text;
+                    _ws.Cells[_currRow, _startCol + 3] = item.SubItems[3].Text;
+                    _ws.Cells[_currRow, _startCol + 4] = item.SubItems[4].Text;
+                    _ws.Cells[_currRow, _startCol + 5] = item.SubItems[5].Text;
+                    _ws.Cells[_currRow, _startCol + 6] = item.SubItems[6].Text;
+
+                    _currRow += 1;
+                }
+
+            }
+
+
+
+
+        }
+        public void reportPaidGame_ko()
+        {
+
+            
+
+        }
+
+        public void reportFreeApp_ko()
+        {
+
+        }
+
+        public void reportPaidApp_ko()
+        {
+
+        }
+
+
+        public void reportFreeGame_us()
+        {
+
+        }
+        public void reportPaidGame_us()
+        {
+
+        }
+
+        public void reportFreeApp_us()
+        {
+
+        }
+
+        public void reportPaidApp_us()
+        {
+
+        }
+
 
         public void reportTestInfo()
         {
@@ -164,10 +241,31 @@ namespace StoreManager
 
             _currRow += 1;
             _currCol = _startCol;
+
+            //k_store_category = "k_store_category";   //store대분류 (게임,엔터테인먼트,생산성,특가)
+            //k_store_subclass = "k_store_subclass";   //store소분류 (최다판매게임,무료인기게임,유료인기게임,새롭고 주목할 만한 PC게임 등..)
+            //k_store_app_name = "k_store_app_name";   //앱이름
+            //k_sotre_app_manufacture = "k_sotre_app_manufacture";  //앱 제작사
+            //k_store_app_category = "k_store_app_category";  //앱 유형(성격)
+            //k_store_app_grade = "k_store_app_grade"; //앱 평점
+            //k_store_app_review = "k_store_app_review"; //앱 평가 개수
+
+            _ws.Cells[_currRow, _startCol] = "대분류";
+            _ws.Cells[_currRow, _startCol + 1] = "분류";
+            _ws.Cells[_currRow, _startCol + 2] = "앱이름";
+            _ws.Cells[_currRow, _startCol + 3] = "제작사";
+            _ws.Cells[_currRow, _startCol + 4] = "앱카테고리";
+            _ws.Cells[_currRow, _startCol + 5] = "평점";
+            _ws.Cells[_currRow, _startCol + 6] = "평가갯수";
+
+         
         }
 
         public void savetofile(string fName)
         {
+
+            //Range range = _ws.get_Range((object)_ws.Cells[_currRow, _currCol], (object)_ws.Cells[_currRow, _separatorWidth]);
+            //Report Title을 제외하고 나머지 영역에 Border처리를 해야 한다.
             var rngAll = _ws.UsedRange;
 
 

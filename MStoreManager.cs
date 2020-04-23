@@ -253,6 +253,8 @@ namespace StoreManager
                 }
 
                 //Thread.Sleep(2000);
+                //무료 인기 게임지정을 toefreegames,SectionViewAllButton조합으로 변경 진행 할 것
+                //인기 유료 게임 : toppaidgames -> SectionViewAllButton조합으로 변경 할 것 
                 AppiumWebElement freegame_list = _deskTopSessoin.FindElement(By.Name("모두 표시 99/+  무료 인기 게임"));
                 freegame_list.Click();
 
@@ -266,7 +268,7 @@ namespace StoreManager
                 //string categoryName = this.cboCategory.SelectedItem.ToString();
                 //string subclassName = this.cboSubclass.SelectedItem.ToString();
 
-                int loop_counter = 1;
+                int loop_counter = 0;
 
                 //TOAN : 04/22/2020. Debugging for Form1. below is ok
                 //_uiManager.HeyConnect();
@@ -274,6 +276,12 @@ namespace StoreManager
                 //Below is data fetch logic
                 foreach (var currItem in currList)
                 {
+                    if(loop_counter>=10)
+                    {
+                        break; //exit internal loop for testing
+                    }
+                    loop_counter = loop_counter + 1;
+
                     System.Diagnostics.Debug.WriteLine(string.Format("Data Fetch Logic Start:{0}", _myUtility.getCurrentTime()));
 
                     Dictionary<string, object> item_info = new Dictionary<string, object>();  //해당 아이템의 필요한 정보를 뽑아서 사전 형태로 저장
@@ -446,21 +454,24 @@ namespace StoreManager
                     //1번만 하고 종료 시킬려고 break문 사용(test용도)
                     //break;
                     System.Diagnostics.Debug.WriteLine(string.Format("Loop Counter:{0}", loop_counter));
-                    loop_counter = loop_counter + 1;
+
+                    //loop_counter = loop_counter + 1;
                     System.Diagnostics.Debug.WriteLine(string.Format("Data Fetch Logic End:{0}", _myUtility.getCurrentTime()));
 
                     //TOAN : 04/19/2020. Game Ranking의 경우. 30개 항목만 구한다.
                     //if (loop_counter > 30)
-                    if (loop_counter > 4)
-                    {
-                        //TOAN : 04/22/2020. Debugging for Form1
-                        _uiManager.HeyConnect();
-                        break;
-                    }
-                    else
-                    {
-                      _store_test_list.Add(item_info);
-                    }
+                    //if (loop_counter > 4)
+                    //{
+                    //    //TOAN : 04/22/2020. Debugging for Form1
+                    //    _uiManager.HeyConnect();
+                    //    break;
+                    //}
+                    //else
+                    //{
+                    //  _store_test_list.Add(item_info);
+                    //}
+
+                    _store_test_list.Add(item_info);
                 } //end of element search
 
                 
