@@ -847,5 +847,266 @@ namespace StoreManager
 
         }
 
+        private void BtnRun_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
+        //TOAN : 06/04/2020
+        private void Button1_Click_1(object sender, EventArgs e)
+        {
+            //GridView Item을 click해서 상세보기를 실시
+            //TOAN : 06/04/2020. 신규 코드 루틴
+            //this.initDeskTopSession();
+
+
+            //TOAN : 06/04/2020. Explicit wait테스트
+            string platformName = "Windows";
+            string deviceName = "WindowsPC";
+            string app_id = "";
+
+            //Test with explicit wait
+            OpenQA.Selenium.Appium.AppiumOptions ao = new AppiumOptions();
+            ao.AddAdditionalCapability("app", "Root");
+            ao.AddAdditionalCapability("platformName", platformName);
+            ao.AddAdditionalCapability("deviceName", deviceName);
+
+            _deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao, TimeSpan.FromMinutes(10));
+
+            var wait = new WebDriverWait(_deskTopSessoin, new TimeSpan(0, 12, 0));
+            //var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(ByAccessibilityId.AccessibilityId("SystemSettings_Maps_Download_Add_Package_Button")));
+
+            try
+            {
+                //GridViewItem을 접근한 경우
+                //var gameElement = _deskTopSessoin.FindElementsByClassName("GridViewItem");
+                //var currList = gameElement.ToList();
+
+                //var gameElement = _deskTopSessoin.FindElementsByXPath("//Button[@AutomationId=\"_rootGrid\"]");
+                //var gameElement = _deskTopSessoin.FindElementsByXPath("//*[@AutomationId=\"_rootGrid\"]");
+                //var currList = gameElement.ToList();
+
+                var gameElement = _deskTopSessoin.FindElementsByXPath("//Image[@AutomationId=\"_image\"]");
+                var currList = gameElement.ToList();
+
+                System.Diagnostics.Debug.WriteLine(string.Format("[Setting MenuList]List Count:{0}", currList.Count));
+
+                int loop_counter = 0;
+
+                foreach (var currItem in currList)
+                {
+
+                    if (loop_counter >= 10)
+
+                    {
+
+                        break; //exit internal loop for testing
+
+                    }
+
+                    //currItem.Click();
+                    //var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(ByAccessibilityId.AccessibilityId("SystemSettings_Maps_Download_Add_Package_Button")));
+
+
+
+                    loop_counter = loop_counter + 1;
+                    //currItem.Click();
+                    var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(currItem));
+                    element.Click();
+
+
+                    var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                    elementBack.Click();
+
+
+
+                    //Thread.Sleep(20000);
+
+                }
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("Full Stacktrace: {0}", ex.ToString()));
+            }
+
+
+
+
+
+            //TOAN : 06/04/2020. old code-routin
+            //this.initDeskTopSession();
+
+            //try
+            //{
+            //    //This is test code
+            //    //var gameElement = _deskTopSessoin.FindElementsByClassName("GridViewItem");
+            //    //TOAN : 06/03/2020. ListItem을 가지고 오는 방식
+            //    //var gameElement = _deskTopSessoin.FindElementsByXPath("//ListItem[@ClassName=\"GridViewItem\"]");
+            //    //var currList = gameElement.ToList();
+
+            //    //TOAN : 06/03/2020. Image을 가지고 오는 방식으로 변경
+            //    //var element2 = _deskTopSessoin.FindElementByXPath("//Group[@Name=\"앱 및 기능\"]/List[@ClassName=\"ListView\"]//child::ListItem[1]//child::Text[4]");
+            //    //var gameElement = _deskTopSessoin.FindElementsByXPath("//ListItem[@ClassName=\"GridViewItem\"]/Button[@AutomationId=\"_rootGrid\"]/Image[@AutomationId=\"_image\"]");
+            //    var gameElement = _deskTopSessoin.FindElementsByXPath("//Image[@AutomationId=\"_image\"]");
+            //    //_rootGrid
+            //    //var gameElement = _deskTopSessoin.FindElementsByXPath("//Button[@AutomationId=\"_rootGrid\"]");
+            //    var currList = gameElement.ToList();
+
+
+            //    System.Diagnostics.Debug.WriteLine(string.Format("[Setting MenuList]List Count:{0}", currList.Count));
+            //    int loop_counter = 0;
+
+
+
+            //    //진입,나옴 반복 테스트 진행
+            //    foreach (var currItem in currList)
+            //    {
+            //        if (loop_counter >= 10)
+            //        {
+            //            break; //exit internal loop for testing
+            //        }
+            //        loop_counter = loop_counter + 1;
+            //        // _deskTopSessoin.Mouse.MouseMove(element.Coordinates);
+            //        //_deskTopSessoin.Mouse.Click(currItem.Coordinates);
+            //        currItem.Click();
+            //        //currItem.Click(); //이클릭은 GridView전체을 클릭하는것
+
+            //        //아래 코드는 gridview자체를 click하는 방법
+            //        //이렇게 할 경우, 단추 이미지가 작은 경우는 클릭 이벤트를 처리하지 못한다.
+            //        //string itemID = currItem.GetAttribute("AutomationId");
+            //        //System.Diagnostics.Debug.WriteLine(string.Format("Automation ID:{0}", itemID));
+            //        //var currTarget = _deskTopSessoin.FindElementByAccessibilityId(itemID);
+            //        //System.Diagnostics.Debug.WriteLine(string.Format("Current Element ID:{0}", currTarget));
+            //        //currTarget.Click();
+
+            //        //session.FindElementByXPath("//Window[@AutomationId='TitleBar']");
+            //        //var target = currItem.FindElementByXPath("/Button[@AutomationId=\"_rootGrid\"]");
+            //        ////child::Button
+            //        //var childElements = currItem.FindElementsByXPath("//child::Button");
+
+            //        //var childElements = currItem.FindElementsByXPath("//child::*");
+            //        //foreach (var currButton in childElements)
+            //        //{
+
+            //        //   string element_name = currButton.GetAttribute("Name");
+
+            //        //    System.Diagnostics.Debug.WriteLine(string.Format("Button Name:{0}", element_name));
+
+            //        //}
+
+            //        //var target = currItem.FindElementByXPath("//Image[@AutomationId=\"_image\"]");
+            //        //target.Click();
+
+            //        //var element = _deskTopSessoin.FindElementByAccessibilityId("DynamicHeading_productTitle");
+            //        //string itemName = element.GetAttribute("Name");
+
+            //        //System.Diagnostics.Debug.WriteLine(string.Format("Current Application Name:{0}", itemName));
+
+
+            //        //다시이전으로 back하기
+            //        var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+            //        elementBack.Click();
+            //    }
+
+            //}
+            //catch(Exception ex)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(string.Format("Full Stacktrace: {0}", ex.ToString()));
+            //}
+
+
+
+        }
+
+        private void Button3_Click(object sender, EventArgs e)
+        {
+
+            this.initDeskTopSession();
+
+            try
+            {
+                //랭키 진입하기-나가기 동작만 순회코드 테스트
+                //version 1. GridViewItem의 Control은 ListItem이다.
+                var gameElements = _deskTopSessoin.FindElementsByXPath("//List[@AutomationId=\"AppList\"]//child::ListItem");
+                //var currList = gameElement.ToList();
+
+                //전체 게임목록 화면 Display
+                //최초 Element접근 후 아래와 같이 접근 문제 없다.
+                foreach (var currItem in gameElements)
+                {
+                    //string itemID = currItem.GetAttribute("AutomationId");
+                    //currItem.GetAttribute("Name")
+                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
+                    //element.Click();
+                }
+
+                gameElements[0].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
+
+                //이전화면으로 복귀
+                var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                elementBack.Click();
+
+                //복귀한 후 다시 리스트를 출력해보자.
+                foreach (var currItem in gameElements)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
+                    //element.Click();
+                }
+
+                System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", gameElements[1].GetAttribute("AutomationId")));
+                System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", gameElements[1].GetAttribute("Name")));
+
+                gameElements[1].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
+
+                //이전화면으로 복귀
+                var elementBack1 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                elementBack1.Click();
+
+
+                foreach (var currItem in gameElements)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
+                    //element.Click();
+                }
+
+                gameElements[2].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
+
+                //이전화면으로 복귀
+                var elementBack2 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                elementBack2.Click();
+
+                foreach (var currItem in gameElements)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
+                    //element.Click();
+                }
+
+                gameElements[3].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
+
+                //이전화면으로 복귀
+                var elementBack3 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                elementBack3.Click();
+
+                foreach (var currItem in gameElements)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
+                    //element.Click();
+                }
+
+                gameElements[4].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
+
+                //이전화면으로 복귀
+                var elementBack4 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                elementBack4.Click();
+
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("Full Stacktrace: {0}", ex.ToString()));
+            }
+
+            //version 2
+        }
     }
 }
