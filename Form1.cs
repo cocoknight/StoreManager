@@ -743,10 +743,10 @@ namespace StoreManager
                     ao.AddAdditionalCapability("platformName", platformName);
                     ao.AddAdditionalCapability("deviceName", deviceName);
 
-                    _deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao, TimeSpan.FromMinutes(2)); //2분 응답 Timer설정
+                    _deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao, TimeSpan.FromMinutes(/*2*/4)); //2분 응답 Timer설정
                    // _deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao); //시간을 주지 않으면, Default 1분 응답 Timer
                     //_deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
-                    _deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
+                    _deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(/*30*/200);
 
                 }
                 catch (Exception ex)
@@ -1024,6 +1024,7 @@ namespace StoreManager
 
             this.initDeskTopSession();
 
+            
             try
             {
                 //랭키 진입하기-나가기 동작만 순회코드 테스트
@@ -1046,6 +1047,7 @@ namespace StoreManager
                 //이전화면으로 복귀
                 var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
                 elementBack.Click();
+                Thread.Sleep(50000);
 
                 //복귀한 후 다시 리스트를 출력해보자.
                 foreach (var currItem in gameElements)
@@ -1057,48 +1059,49 @@ namespace StoreManager
                 System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", gameElements[1].GetAttribute("AutomationId")));
                 System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", gameElements[1].GetAttribute("Name")));
 
+                //Thread.Sleep(50000);
                 gameElements[1].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
 
                 //이전화면으로 복귀
-                var elementBack1 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
-                elementBack1.Click();
+                //var elementBack1 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                //elementBack1.Click();
 
 
-                foreach (var currItem in gameElements)
-                {
-                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
-                    //element.Click();
-                }
+                //foreach (var currItem in gameElements)
+                //{
+                //    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
+                //    //element.Click();
+                //}
 
-                gameElements[2].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
+                //gameElements[2].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
 
-                //이전화면으로 복귀
-                var elementBack2 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
-                elementBack2.Click();
+                ////이전화면으로 복귀
+                //var elementBack2 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                //elementBack2.Click();
 
-                foreach (var currItem in gameElements)
-                {
-                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
-                    //element.Click();
-                }
+                //foreach (var currItem in gameElements)
+                //{
+                //    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
+                //    //element.Click();
+                //}
 
-                gameElements[3].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
+                //gameElements[3].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
 
-                //이전화면으로 복귀
-                var elementBack3 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
-                elementBack3.Click();
+                ////이전화면으로 복귀
+                //var elementBack3 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                //elementBack3.Click();
 
-                foreach (var currItem in gameElements)
-                {
-                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
-                    //element.Click();
-                }
+                //foreach (var currItem in gameElements)
+                //{
+                //    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
+                //    //element.Click();
+                //}
 
-                gameElements[4].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
+                //gameElements[4].Click();  //Game Elemennt의 첫번째 아이템에 Click Event적용
 
-                //이전화면으로 복귀
-                var elementBack4 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
-                elementBack4.Click();
+                ////이전화면으로 복귀
+                //var elementBack4 = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                //elementBack4.Click();
 
             }
             catch (Exception ex)
@@ -1107,6 +1110,104 @@ namespace StoreManager
             }
 
             //version 2
+        }
+
+        private void Button4_Click(object sender, EventArgs e)
+        {
+            //상세보기 진입 - 나오기 (개선버전)
+            //step1 : 최초 GridView전체의 DOM정보 획득
+            //step2 : DOM정보중 AutomationID별도 저장
+            //step3 : AutomationID필요크기 만큼 루프 순회
+            //기존이슈 : 최초 획득한 GridView의 돔정보를 진입-나오기해서 사용하면 Driver단에서 에러가 발생한다.
+            //DOM은 갱신되었는데, 실제 코드 정보는 최초 획득한 정보를 사용하고 있는 상황인듯 하다.
+
+            //this.initDeskTopSession();
+            string platformName = "Windows";
+            string deviceName = "WindowsPC";
+            string app_id = "";
+
+            //Test with explicit wait
+            OpenQA.Selenium.Appium.AppiumOptions ao = new AppiumOptions();
+            ao.AddAdditionalCapability("app", "Root");
+            ao.AddAdditionalCapability("platformName", platformName);
+            ao.AddAdditionalCapability("deviceName", deviceName);
+
+            _deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao, TimeSpan.FromMinutes(10));
+
+            var wait = new WebDriverWait(_deskTopSessoin, new TimeSpan(0, 5, 0));
+
+            List<string> _appList = new List<string>();
+            int loop_counter = 0;
+
+            try
+            {
+
+                //step1
+                var gameElements = _deskTopSessoin.FindElementsByXPath("//List[@AutomationId=\"AppList\"]//child::ListItem");
+                //var currList = gameElement.ToList();
+
+                //step2
+                foreach (var currItem in gameElements)
+                {
+                    //string itemID = currItem.GetAttribute("AutomationId");
+                    //currItem.GetAttribute("Name")
+                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
+                    _appList.Add(currItem.GetAttribute("AutomationId").ToString());
+                    //element.Click();
+                }
+
+                //step3
+                foreach (string autoID in _appList)
+                {
+
+                    if (loop_counter >= 20)
+
+                    {
+
+                        break; //exit internal loop for testing
+
+                    }
+
+                    loop_counter = loop_counter + 1;
+
+                    System.Diagnostics.Debug.WriteLine(string.Format("App Automation ID:{0}", autoID));
+                    //var element = _deskTopSessoin.FindElementByAccessibilityId(autoID);
+                    //System.Diagnostics.Debug.WriteLine(string.Format("App Name:{0}", element.GetAttribute("Name")));
+                    //element.Click();
+                    var celement = _deskTopSessoin.FindElementByAccessibilityId(autoID);
+                    _deskTopSessoin.Mouse.MouseMove(celement.Coordinates);
+                    var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(ByAccessibilityId.AccessibilityId(autoID)));
+                    //var celement = _deskTopSessoin.FindElementByAccessibilityId(autoID);
+                    //_deskTopSessoin.Mouse.MouseMove(celement.Coordinates);
+
+                    System.Diagnostics.Debug.WriteLine(string.Format("App Name:{0}", element.GetAttribute("Name")));
+                    element.Click();
+
+                    System.Diagnostics.Debug.WriteLine(string.Format("Bla Bla Bla !!!!"));
+
+                    //var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                    //elementBack.Click();
+
+                    var elementBack = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(ByAccessibilityId.AccessibilityId("NavigationViewBackButton")));
+                    elementBack.Click();
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("Full Stacktrace: {0}", ex.ToString()));
+            }
+
+            
+
+
+        }
+
+        private void Button2_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }
