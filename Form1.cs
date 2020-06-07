@@ -27,6 +27,7 @@ using System.Windows.Forms;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Windows;
+using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 
 namespace StoreManager
@@ -39,6 +40,7 @@ namespace StoreManager
         public string _app_id = "";
 
         WindowsDriver<WindowsElement> _deskTopSessoin;
+        WebDriverWait _wait;
         CUtility _myUtility;
         public KeyList _keyList;
 
@@ -756,6 +758,33 @@ namespace StoreManager
             }
         }
 
+        public void initDeskTopSession_Explicit()
+        {
+            System.Diagnostics.Debug.WriteLine(string.Format("InitDeskTop Session(BaseManager)"));
+            string platformName = "Windows";
+            string deviceName = "WindowsPC";
+            string app_id = "";
+
+            if (_deskTopSessoin == null)
+            {
+                try
+                {
+                    OpenQA.Selenium.Appium.AppiumOptions ao = new AppiumOptions();
+                    ao.AddAdditionalCapability("app", "Root");
+                    ao.AddAdditionalCapability("platformName", platformName);
+                    ao.AddAdditionalCapability("deviceName", deviceName);
+
+                      _deskTopSessoin = new WindowsDriver<WindowsElement>(new Uri(@"http://127.0.0.1:4723"), ao, TimeSpan.FromMinutes(10));
+
+                      _wait = new WebDriverWait(_deskTopSessoin, new TimeSpan(0, 5, 0));
+
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("Full Stacktrace: {0}", ex.ToString()));
+                }
+            }
+        }
 
         public string getCurrentTime()
         {
@@ -1112,12 +1141,14 @@ namespace StoreManager
             //version 2
         }
 
+       
         private void Button4_Click(object sender, EventArgs e)
         {
             //상세보기 진입 - 나오기 (개선버전)
             //step1 : 최초 GridView전체의 DOM정보 획득
             //step2 : DOM정보중 AutomationID별도 저장
-            //step3 : AutomationID필요크기 만큼 루프 순회
+            //step3 : AutomationID필요크기 만큼 루프 순회(DOM정보 갱신)
+            //step4 : 루프안에서 해당 AutomationID에 해당하는 elment에 필요한 정보를 다시 획득
             //기존이슈 : 최초 획득한 GridView의 돔정보를 진입-나오기해서 사용하면 Driver단에서 에러가 발생한다.
             //DOM은 갱신되었는데, 실제 코드 정보는 최초 획득한 정보를 사용하고 있는 상황인듯 하다.
 
@@ -1139,6 +1170,8 @@ namespace StoreManager
             List<string> _appList = new List<string>();
             int loop_counter = 0;
 
+            //ExplicitWait을 선언했기 때문에 해당 방식이 지원하는 API만 사용한다.
+
             try
             {
 
@@ -1147,20 +1180,35 @@ namespace StoreManager
                 //var currList = gameElement.ToList();
 
                 //step2
+                //약식 디버깅
+                int index_counter = 0;
                 foreach (var currItem in gameElements)
                 {
                     //string itemID = currItem.GetAttribute("AutomationId");
                     //currItem.GetAttribute("Name")
-                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("AutomationId")));
+                    if (index_counter >= 10)
+                    {
+                       
+                        break; 
+                    }
+                    index_counter++;
+
+                    System.Diagnostics.Debug.WriteLine(string.Format("element id:{0}", currItem.GetAttribute("AutomationId")));
+                    System.Diagnostics.Debug.WriteLine(string.Format("element name:{0}", currItem.GetAttribute("Name")));
+                    System.Diagnostics.Debug.WriteLine(string.Format("element offScreen:{0}", currItem.GetAttribute("IsOffscreen")));
+                    System.Diagnostics.Debug.WriteLine(string.Format("Location X:{0},Location Y:{1}", currItem.Location.X,
+                                                                      currItem.Location.Y));
                     _appList.Add(currItem.GetAttribute("AutomationId").ToString());
                     //element.Click();
                 }
 
                 //step3
+                int applist_index = 0;
+
                 foreach (string autoID in _appList)
                 {
 
-                    if (loop_counter >= 20)
+                    if (loop_counter >= 10)
 
                     {
 
@@ -1168,14 +1216,28 @@ namespace StoreManager
 
                     }
 
+                    
                     loop_counter = loop_counter + 1;
 
                     System.Diagnostics.Debug.WriteLine(string.Format("App Automation ID:{0}", autoID));
-                    //var element = _deskTopSessoin.FindElementByAccessibilityId(autoID);
-                    //System.Diagnostics.Debug.WriteLine(string.Format("App Name:{0}", element.GetAttribute("Name")));
-                    //element.Click();
-                    var celement = _deskTopSessoin.FindElementByAccessibilityId(autoID);
-                    _deskTopSessoin.Mouse.MouseMove(celement.Coordinates);
+
+                    //var celement = _deskTopSessoin.FindElementByAccessibilityId(autoID);
+                    var celement = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(ByAccessibilityId.AccessibilityId(autoID)));
+                    //var celement = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(ByAccessibilityId.AccessibilityId(autoID)));
+
+                    if (celement.GetAttribute("IsOffscreen").ToString().Equals("True"))
+                    {
+                        //지금 제어하려고 하는 아이템은 화면에 보이지 않는다.
+                        
+                        string preElementID = _appList[applist_index - 1];
+                        var preElement = _deskTopSessoin.FindElementByAccessibilityId(preElementID);
+                        preElement.SendKeys(OpenQA.Selenium.Keys.Down);
+                    }
+
+
+
+
+
                     var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(ByAccessibilityId.AccessibilityId(autoID)));
                     //var celement = _deskTopSessoin.FindElementByAccessibilityId(autoID);
                     //_deskTopSessoin.Mouse.MouseMove(celement.Coordinates);
@@ -1191,7 +1253,7 @@ namespace StoreManager
                     var elementBack = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(ByAccessibilityId.AccessibilityId("NavigationViewBackButton")));
                     elementBack.Click();
 
-
+                    applist_index = applist_index + 1;
                 }
 
             }
@@ -1207,6 +1269,27 @@ namespace StoreManager
 
         private void Button2_Click_1(object sender, EventArgs e)
         {
+
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            //Store화면 스크롤하기
+
+            this.initDeskTopSession_Explicit();
+
+
+            try
+            {
+                var gameElements = _deskTopSessoin.FindElementsByXPath("//List[@AutomationId=\"AppList\"]//child::ListItem");
+                var element= _wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(gameElements[0]));
+
+                element.SendKeys(OpenQA.Selenium.Keys.Down);
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("Full Stacktrace: {0}", ex.ToString()));
+            }
 
         }
     }

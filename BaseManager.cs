@@ -26,7 +26,7 @@ namespace StoreManager
 
         public BaseManager(EnumSet.CATEGORY category)
         {
-
+            System.Diagnostics.Debug.WriteLine(string.Format("Constructor(BaseManager)"));
         }
 
         public void connectUI(Form1 conn)
