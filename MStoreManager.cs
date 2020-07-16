@@ -106,7 +106,14 @@ namespace StoreManager
             _uiManager.TestResultToListView(_store_test_list);
         }
 
+        void do_automation_parsing_explicit(Dictionary<string, string> info)
+        {
+
+
+        }
+
         void do_automation_parsing(Dictionary<string, string> info)
+
         {
             _categoryName = info[_keyList.k_store_category];
             _subclassName = info[_keyList.k_store_subclass];
@@ -194,7 +201,7 @@ namespace StoreManager
         
         void do_free_game_ranking_v1()
         {
-            var wait = new WebDriverWait(_deskTopSessoin, new TimeSpan(0, 2, 0));
+            var wait = new WebDriverWait(_deskTopSession, new TimeSpan(0, 2, 0));
             var element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(By.Name("뒤로 단추")));
         }
 
@@ -205,7 +212,7 @@ namespace StoreManager
 
 
             //setup implicit wait time. Have to setup implicit wait time
-            _deskTopSessoin.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(200);
+            _deskTopSession.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(200);
 
 
 
@@ -224,7 +231,7 @@ namespace StoreManager
             try
             {
               
-                AppiumWebElement start_button = _deskTopSessoin.FindElement(By.Name("시작"));
+                AppiumWebElement start_button = _deskTopSession.FindElement(By.Name("시작"));
                 Thread.Sleep(2000);
 
                 if (start_button != null)
@@ -234,7 +241,7 @@ namespace StoreManager
                 }
 
                 //Thread.Sleep(3000);
-                AppiumWebElement store_button = _deskTopSessoin.FindElementByAccessibilityId("tile-P~Microsoft.WindowsStore_8wekyb3d8bbwe!App");
+                AppiumWebElement store_button = _deskTopSession.FindElementByAccessibilityId("tile-P~Microsoft.WindowsStore_8wekyb3d8bbwe!App");
 
                 //Thread.Sleep(2000);
                 if (store_button != null)
@@ -245,7 +252,7 @@ namespace StoreManager
 
                 //여기까지 문제 없었으면 Store창이 정상적으로 display되어졌을 것이다.
                 //Thread.Sleep(7000);
-                AppiumWebElement gaming_button = _deskTopSessoin.FindElementByAccessibilityId("gaming");
+                AppiumWebElement gaming_button = _deskTopSession.FindElementByAccessibilityId("gaming");
                 if (gaming_button != null)
                 {
                     System.Diagnostics.Debug.WriteLine(string.Format("Find gaming Btn"));
@@ -255,16 +262,16 @@ namespace StoreManager
                 //Thread.Sleep(2000);
                 //무료 인기 게임지정을 toefreegames,SectionViewAllButton조합으로 변경 진행 할 것
                 //인기 유료 게임 : toppaidgames -> SectionViewAllButton조합으로 변경 할 것 
-                AppiumWebElement freegame_list = _deskTopSessoin.FindElement(By.Name("모두 표시 99/+  무료 인기 게임"));
+                AppiumWebElement freegame_list = _deskTopSession.FindElement(By.Name("모두 표시 99/+  무료 인기 게임"));
                 freegame_list.Click();
 
                 //TOAN : 06/05/2020. code-change
-                var wait = new WebDriverWait(_deskTopSessoin, new TimeSpan(0, 5, 0));
+                var wait = new WebDriverWait(_deskTopSession, new TimeSpan(0, 5, 0));
                 List<string> _appList = new List<string>();
                 int loop_counter = 0;
 
 
-                var gameElements = _deskTopSessoin.FindElementsByXPath("//List[@AutomationId=\"AppList\"]//child::ListItem");
+                var gameElements = _deskTopSession.FindElementsByXPath("//List[@AutomationId=\"AppList\"]//child::ListItem");
                 //var currList = gameElement.ToList();
 
                 //step2
@@ -295,25 +302,25 @@ namespace StoreManager
                     item_info.Add(_keyList.k_store_subclass, _subclassName);
 
                     var celement = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(ByAccessibilityId.AccessibilityId(autoID)));
-                    //var celement = _deskTopSessoin.FindElementByAccessibilityId(autoID);
-                    //_deskTopSessoin.Mouse.MouseMove(celement.Coordinates);
+                    //var celement = _deskTopSession.FindElementByAccessibilityId(autoID);
+                    //_deskTopSession.Mouse.MouseMove(celement.Coordinates);
 
                     System.Diagnostics.Debug.WriteLine(string.Format("App Name:{0}", celement.GetAttribute("Name")));
                     celement.Click();
 
                     //step1 : get App Title
                     System.Diagnostics.Debug.WriteLine(string.Format("DynamicHeading_productTitle Element Find Start:{0}", _myUtility.getCurrentTime()));
-                    var element = _deskTopSessoin.FindElementByAccessibilityId("DynamicHeading_productTitle");
+                    var element = _deskTopSession.FindElementByAccessibilityId("DynamicHeading_productTitle");
                     string itemName = element.GetAttribute("Name");
 
                     item_info.Add(_keyList.k_store_app_name, itemName.ToString());
 
                     //var elements = element.FindElementsByXPath("/following-sibling::*");
-                    //var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*"); //This is OK
+                    //var elements = _deskTopSession.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*"); //This is OK
 
                     //click한 이후에 형제 element들을 가지고 온다.
                     System.Diagnostics.Debug.WriteLine(string.Format("[형제]DynamicHeading_productTitle Sibling Find Start:{0}", _myUtility.getCurrentTime()));
-                    var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]//following-sibling::*"); //This is OK
+                    var elements = _deskTopSession.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]//following-sibling::*"); //This is OK
 
 
                     //TOAN : 04/22/2020. 하위 element에 범주 자체가 없는 경우도 발생
@@ -419,7 +426,7 @@ namespace StoreManager
                     //"개요" 영역에서 범주 값을 가지고 오기 위해, 다시한번 query수행.
                     if (String.IsNullOrEmpty(category_string))
                     {
-                        var category_elements = _deskTopSessoin.FindElementsByXPath("//Group[@AutomationId=\"범주-toggle-target\"]//child::*");
+                        var category_elements = _deskTopSession.FindElementsByXPath("//Group[@AutomationId=\"범주-toggle-target\"]//child::*");
                         category_string = category_elements[1].GetAttribute("Name").ToString();
                         item_info.Add(_keyList.k_store_app_category, category_string);
                     }
@@ -465,7 +472,7 @@ namespace StoreManager
 
 
                 ////Thread.Sleep(5000);
-                //var gameElement = _deskTopSessoin.FindElementsByClassName("GridViewItem");
+                //var gameElement = _deskTopSession.FindElementsByClassName("GridViewItem");
                 //    var currList = gameElement.ToList();
                 //    System.Diagnostics.Debug.WriteLine(string.Format("[Setting MenuList]List Count:{0}", currList.Count));
 
@@ -505,7 +512,7 @@ namespace StoreManager
                 //    //TOAN : 04/16/2020. AutomatinID기준으로 item을 찾고 난 후 click진행(for loop반복시 이렇게 하지 않으면 exception발생)
                 //    string itemID = currItem.GetAttribute("AutomationId");
                 //    System.Diagnostics.Debug.WriteLine(string.Format("Automation ID:{0}", itemID));
-                //    var currTarget = _deskTopSessoin.FindElementByAccessibilityId(itemID);
+                //    var currTarget = _deskTopSession.FindElementByAccessibilityId(itemID);
                 //    //currTarget이 유효한지 확인 해보자(미니언즈)
                 //    System.Diagnostics.Debug.WriteLine(string.Format("Current Element ID:{0}", currTarget));
                 //    currTarget.Click();
@@ -518,24 +525,24 @@ namespace StoreManager
                 //    //get 1 depth목록
                 //    //Thread.Sleep(3000);
 
-                //    //var elements = _deskTopSessoin.FindElementsByXPath("//Button[@Name=\"NavigationControl\"]/child::*");
-                //    //var elements = _deskTopSessoin.FindElementsByXPath("//Group[@AutomationId=\"pdp\"]//child::*");       //This is OK 
-                //    //var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//*");      //This is OK
-                //    //var elements = _deskTopSessoin.FindElementByAccessibilityId("pdp").FindElementsByXPath("//child::*"); //This is OK
+                //    //var elements = _deskTopSession.FindElementsByXPath("//Button[@Name=\"NavigationControl\"]/child::*");
+                //    //var elements = _deskTopSession.FindElementsByXPath("//Group[@AutomationId=\"pdp\"]//child::*");       //This is OK 
+                //    //var elements = _deskTopSession.FindElementByAccessibilityId("pdp").FindElementsByXPath("//*");      //This is OK
+                //    //var elements = _deskTopSession.FindElementByAccessibilityId("pdp").FindElementsByXPath("//child::*"); //This is OK
 
                 //    //step1 : get App Title
                 //    System.Diagnostics.Debug.WriteLine(string.Format("DynamicHeading_productTitle Element Find Start:{0}", _myUtility.getCurrentTime()));
-                //    var element = _deskTopSessoin.FindElementByAccessibilityId("DynamicHeading_productTitle");
+                //    var element = _deskTopSession.FindElementByAccessibilityId("DynamicHeading_productTitle");
                 //    string itemName = element.GetAttribute("Name");
 
                 //    item_info.Add(_keyList.k_store_app_name, itemName.ToString());
 
                 //    //var elements = element.FindElementsByXPath("/following-sibling::*");
-                //    //var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*"); //This is OK
+                //    //var elements = _deskTopSession.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]/following-sibling::*"); //This is OK
 
                 //    //click한 이후에 형제 element들을 가지고 온다.
                 //    System.Diagnostics.Debug.WriteLine(string.Format("[형제]DynamicHeading_productTitle Sibling Find Start:{0}", _myUtility.getCurrentTime()));
-                //    var elements = _deskTopSessoin.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]//following-sibling::*"); //This is OK
+                //    var elements = _deskTopSession.FindElementsByXPath("//Text[@AutomationId=\"DynamicHeading_productTitle\"]//following-sibling::*"); //This is OK
 
 
                 //    //TOAN : 04/22/2020. 하위 element에 범주 자체가 없는 경우도 발생
@@ -641,7 +648,7 @@ namespace StoreManager
                 //    //"개요" 영역에서 범주 값을 가지고 오기 위해, 다시한번 query수행.
                 //    if (String.IsNullOrEmpty(category_string))
                 //    {
-                //        var category_elements = _deskTopSessoin.FindElementsByXPath("//Group[@AutomationId=\"범주-toggle-target\"]//child::*");
+                //        var category_elements = _deskTopSession.FindElementsByXPath("//Group[@AutomationId=\"범주-toggle-target\"]//child::*");
                 //        category_string = category_elements[1].GetAttribute("Name").ToString();
                 //        item_info.Add(_keyList.k_store_app_category, category_string);
                 //    }
@@ -650,7 +657,7 @@ namespace StoreManager
                 //    //_store_list.Add(item_info);
 
                 //    //다시 이전 gridview로 전환
-                //    var elementBack = _deskTopSessoin.FindElementByAccessibilityId("NavigationViewBackButton");
+                //    var elementBack = _deskTopSession.FindElementByAccessibilityId("NavigationViewBackButton");
                 //    elementBack.Click();
                 //    //Thread.Sleep(2000);
                 //    //Thread.Sleep(/*5000*/8000);

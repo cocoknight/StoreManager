@@ -113,6 +113,7 @@
             this.tabTestInfo.TabIndex = 0;
             this.tabTestInfo.Text = "Test Information";
             this.tabTestInfo.UseVisualStyleBackColor = true;
+            this.tabTestInfo.Click += new System.EventHandler(this.tabTestInfo_Click);
             // 
             // groupBox2
             // 
